@@ -18,80 +18,157 @@
                 <h5 class="mb-0">申请信息</h5>
             </div>
             <div class="card-body">
-                <div class="row">
-                    <div class="col-md-6 mb-3">
-                        <strong>申请编号：</strong>
-                        <code>{{ application[1] }}</code>
-                    </div>
-                    <div class="col-md-6 mb-3">
-                        <strong>购买人：</strong>
-                        {{ application[2] }}
-                    </div>
-                    <div class="col-md-6 mb-3">
-                        <strong>物品名称：</strong>
-                        {{ application[4] }}
-                    </div>
-                    <div class="col-md-6 mb-3">
-                        <strong>使用途径：</strong>
-                        <span class="badge bg-{% if application[6] == '个人使用' %}info{% else %}success{% endif %}">
-                            {{ application[6] }}
-                        </span>
-                    </div>
-                    <div class="col-md-6 mb-3">
-                        <strong>物品类型：</strong>
-                        {{ application[7] }}
-                    </div>
-                    <div class="col-md-6 mb-3">
-                        <strong>数量：</strong>
-                        {{ application[8] }}
-                    </div>
-                    <div class="col-md-6 mb-3">
-                        <strong>购买时间：</strong>
-                        {{ application[9] }}
-                    </div>
-                    <div class="col-md-6 mb-3">
-                        <strong>开票日期：</strong>
-                        {{ application[12] }}
-                    </div>
-                    <div class="col-md-6 mb-3">
-                        <strong>发票号码：</strong>
-                        {{ application[10] }}
-                    </div>
-                    <div class="col-md-6 mb-3">
-                        <strong>发票金额：</strong>
-                        <span class="text-success fw-bold">¥{{ "%.2f"|format(application[11]) }}</span>
-                    </div>
-                    <div class="col-12 mb-3">
-                        <strong>商品链接：</strong>
-                        {% if application[5] %}
-                        <a href="{{ application[5] }}" target="_blank" class="text-decoration-none">
-                            {{ application[5] }} <i class="bi bi-box-arrow-up-right"></i>
-                        </a>
-                        {% else %}
-                        <span class="text-muted">未提供</span>
-                        {% endif %}
-                    </div>
-                    <div class="col-12 mb-3">
-                        <strong>商品参数及用途说明：</strong>
-                        <div class="mt-2">
-                            {% if application[3] %}
-                            <div class="border rounded p-3 bg-light">
-                                {{ application[3]|replace('\n', '<br>')|safe }}
+                <div class="row g-2">
+                    <div class="col-12">
+                        <div class="row align-items-center py-2 border-bottom">
+                            <div class="col-4 col-sm-3">
+                                <strong>申请编号：</strong>
                             </div>
-                            {% else %}
-                            <span class="text-muted">未填写</span>
-                            {% endif %}
+                            <div class="col-8 col-sm-9">
+                                <code>{{ application[1] }}</code>
+                            </div>
                         </div>
                     </div>
-                    <div class="col-md-6 mb-3">
-                        <strong>提交时间：</strong>
-                        {{ application[15] }}
+                    <div class="col-12">
+                        <div class="row align-items-center py-2 border-bottom">
+                            <div class="col-4 col-sm-3">
+                                <strong>购买人：</strong>
+                            </div>
+                            <div class="col-8 col-sm-9">
+                                {{ application[2] }}
+                            </div>
+                        </div>
                     </div>
-                    <div class="col-md-6 mb-3">
-                        <strong>更新时间：</strong>
-                        {{ application[16] }}
+                    <div class="col-12">
+                        <div class="row align-items-center py-2 border-bottom">
+                            <div class="col-4 col-sm-3">
+                                <strong>物品名称：</strong>
+                            </div>
+                            <div class="col-8 col-sm-9">
+                                {{ application[4] }}
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-12">
+                        <div class="row align-items-center py-2 border-bottom">
+                            <div class="col-4 col-sm-3">
+                                <strong>使用途径：</strong>
+                            </div>
+                            <div class="col-8 col-sm-9">
+                                <span
+                                    class="badge bg-{% if application[6] == '个人使用' %}info{% else %}success{% endif %}">
+                                    {{ application[6] }}
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-12">
+                        <div class="row align-items-center py-2 border-bottom">
+                            <div class="col-4 col-sm-3">
+                                <strong>物品类型：</strong>
+                            </div>
+                            <div class="col-8 col-sm-9">
+                                {{ application[7] }}
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-12">
+                        <div class="row align-items-center py-2 border-bottom">
+                            <div class="col-4 col-sm-3">
+                                <strong>数量：</strong>
+                            </div>
+                            <div class="col-8 col-sm-9">
+                                {{ application[8] }}
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-12">
+                        <div class="row align-items-center py-2 border-bottom">
+                            <div class="col-4 col-sm-3">
+                                <strong>购买时间：</strong>
+                            </div>
+                            <div class="col-8 col-sm-9">
+                                {{ application[9] }}
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-12">
+                        <div class="row align-items-center py-2 border-bottom">
+                            <div class="col-4 col-sm-3">
+                                <strong>开票日期：</strong>
+                            </div>
+                            <div class="col-8 col-sm-9">
+                                {{ application[12] }}
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-12">
+                        <div class="row align-items-center py-2 border-bottom">
+                            <div class="col-4 col-sm-3">
+                                <strong>发票号码：</strong>
+                            </div>
+                            <div class="col-8 col-sm-9">
+                                <code>{{ application[10] }}</code>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-12">
+                        <div class="row align-items-center py-2 border-bottom">
+                            <div class="col-4 col-sm-3">
+                                <strong>发票金额：</strong>
+                            </div>
+                            <div class="col-8 col-sm-9">
+                                <span class="text-success fw-bold">¥{{ "%.2f"|format(application[11]) }}</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-12">
+                        <div class="row align-items-center py-2 border-bottom">
+                            <div class="col-4 col-sm-3">
+                                <strong>商品链接：</strong>
+                            </div>
+                            <div class="col-8 col-sm-9">
+                                {% if application[5] %}
+                                <a href="{{ application[5] }}" target="_blank" class="text-decoration-none">
+                                    {{ application[5] }} <i class="bi bi-box-arrow-up-right"></i>
+                                </a>
+                                {% else %}
+                                <span class="text-muted">未提供</span>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-12">
+                        <div class="row align-items-center py-2 border-bottom">
+                            <div class="col-4 col-sm-3">
+                                <strong>提交时间：</strong>
+                            </div>
+                            <div class="col-8 col-sm-9">
+                                {{ application[15] }}
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-12">
+                        <div class="row align-items-center py-2">
+                            <div class="col-4 col-sm-3">
+                                <strong>更新时间：</strong>
+                            </div>
+                            <div class="col-8 col-sm-9">
+                                {{ application[16] }}
+                            </div>
+                        </div>
                     </div>
                 </div>
+
+                <!-- 商品描述 -->
+                {% if application[3] %}
+                <div class="mt-4">
+                    <h6><strong>商品参数及用途说明：</strong></h6>
+                    <div class="bg-light p-3 rounded">
+                        {{ application[3]|replace('\n', '<br>')|safe }}
+                    </div>
+                </div>
+                {% endif %}
             </div>
         </div>
 
