@@ -384,6 +384,10 @@ def admin_dashboard():
         search_purchaser = request.args.get('purchaser', '')
         search_status = request.args.get('status', '')
         search_usage = request.args.get('usage', '')
+        purchase_date_start = request.args.get('purchase_date_start', '')
+        purchase_date_end = request.args.get('purchase_date_end', '')
+        invoice_date_start = request.args.get('invoice_date_start', '')
+        invoice_date_end = request.args.get('invoice_date_end', '')
         sort_field = request.args.get('sort', 'created_at')
         sort_order = request.args.get('order', 'desc')
         
@@ -415,6 +419,18 @@ def admin_dashboard():
         if search_usage:
             query += ' AND usage_type = ?'
             params.append(search_usage)
+        if purchase_date_start:
+            query += ' AND purchase_time >= ?'
+            params.append(purchase_date_start)
+        if purchase_date_end:
+            query += ' AND purchase_time <= ?'
+            params.append(purchase_date_end)
+        if invoice_date_start:
+            query += ' AND invoice_date >= ?'
+            params.append(invoice_date_start)
+        if invoice_date_end:
+            query += ' AND invoice_date <= ?'
+            params.append(invoice_date_end)
         
         query += f' ORDER BY {sortable_fields[sort_field]} {sort_order.upper()}'
         c.execute(query, params)
@@ -472,7 +488,61 @@ def export_excel():
         return redirect(url_for('admin_login'))
     
     with sqlite3.connect('reimbursement.db') as conn:
-        df = pd.read_sql_query('SELECT * FROM applications ORDER BY created_at DESC', conn)
+        # 使用与admin_dashboard相同的筛选逻辑
+        search_purchaser = request.args.get('purchaser', '')
+        search_status = request.args.get('status', '')
+        search_usage = request.args.get('usage', '')
+        purchase_date_start = request.args.get('purchase_date_start', '')
+        purchase_date_end = request.args.get('purchase_date_end', '')
+        invoice_date_start = request.args.get('invoice_date_start', '')
+        invoice_date_end = request.args.get('invoice_date_end', '')
+        sort_field = request.args.get('sort', 'created_at')
+        sort_order = request.args.get('order', 'desc')
+        
+        sortable_fields = {
+            'created_at': 'created_at',
+            'purchaser': 'purchaser',
+            'item_name': 'item_name',
+            'invoice_amount': 'invoice_amount',
+            'invoice_number': 'invoice_number',
+            'invoice_date': 'invoice_date',
+            'purchase_time': 'purchase_time',
+            'item_type': 'item_type',
+            'status': 'status'
+        }
+        
+        if sort_field not in sortable_fields:
+            sort_field = 'created_at'
+        if sort_order not in ['asc', 'desc']:
+            sort_order = 'desc'
+        
+        query = 'SELECT * FROM applications WHERE 1=1'
+        params = []
+        if search_purchaser:
+            query += ' AND purchaser LIKE ?'
+            params.append(f'%{search_purchaser}%')
+        if search_status:
+            query += ' AND status = ?'
+            params.append(search_status)
+        if search_usage:
+            query += ' AND usage_type = ?'
+            params.append(search_usage)
+        if purchase_date_start:
+            query += ' AND purchase_time >= ?'
+            params.append(purchase_date_start)
+        if purchase_date_end:
+            query += ' AND purchase_time <= ?'
+            params.append(purchase_date_end)
+        if invoice_date_start:
+            query += ' AND invoice_date >= ?'
+            params.append(invoice_date_start)
+        if invoice_date_end:
+            query += ' AND invoice_date <= ?'
+            params.append(invoice_date_end)
+        
+        query += f' ORDER BY {sortable_fields[sort_field]} {sort_order.upper()}'
+        
+        df = pd.read_sql_query(query, conn, params=params)
     
     df.columns = ['ID', '申请编号', '购买人', '商品参数及用途说明', '物品名称', '商品链接', '使用途径', 
                   '物品类型', '数量', '购买时间', '发票号码', '发票金额', '开票日期', 
@@ -483,7 +553,22 @@ def export_excel():
         df.to_excel(writer, sheet_name='报销申请', index=False)
     
     output.seek(0)
-    filename = f'报销申请_{datetime.now().strftime("%Y%m%d")}.xlsx'
+    
+    # 根据筛选条件生成文件名
+    filename_parts = ['报销申请']
+    if search_purchaser:
+        filename_parts.append(f'购买人_{search_purchaser}')
+    if search_status:
+        filename_parts.append(f'状态_{search_status}')
+    if purchase_date_start or purchase_date_end:
+        date_range = []
+        if purchase_date_start:
+            date_range.append(f'从{purchase_date_start}')
+        if purchase_date_end:
+            date_range.append(f'到{purchase_date_end}')
+        filename_parts.append(f'购买日期_{"".join(date_range)}')
+    
+    filename = f'{"_".join(filename_parts)}_{datetime.now().strftime("%Y%m%d")}.xlsx'
     
     return send_file(output, 
                      download_name=filename, 
