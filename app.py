@@ -356,5 +356,5 @@ def admin_logout():
 
 if __name__ == '__main__':
     init_db()
-    app.logger.info("系统启动 - 数据库初始化完成, 服务器启动在 http://0.0.0.0:5000, 日志文件: logs/app.log")
+    app.logger.info("系统启动 - 数据库初始化完成, 服务器启动在 http://0.0.0.0:5000, 日志文件: logs/app.log，数据库文件: reimbursement.db")
     app.run(debug=True, host='0.0.0.0', port=5000)

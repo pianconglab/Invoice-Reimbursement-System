@@ -138,7 +138,7 @@
                 <div class="mt-2">
                     <span class="badge bg-warning fs-6">{{ application[13] }}</span>
                 </div>
-                {% elif application[13] == '审批中' %}
+                {% elif application[13] == '报销中' %}
                 <i class="bi bi-hourglass-split text-primary" style="font-size: 3rem;"></i>
                 <div class="mt-2">
                     <span class="badge bg-primary fs-6">{{ application[13] }}</span>
@@ -168,7 +168,7 @@
                         <label for="status" class="form-label">审批状态</label>
                         <select class="form-select" id="status" name="status" required>
                             <option value="">请选择状态</option>
-                            <option value="审批中" {% if application[13]=='审批中' %}selected{% endif %}>审批中</option>
+                            <option value="报销中" {% if application[13]=='报销中' %}selected{% endif %}>报销中</option>
                             <option value="已报销" {% if application[13]=='已报销' %}selected{% endif %}>已报销</option>
                             <option value="驳回" {% if application[13]=='驳回' %}selected{% endif %}>驳回</option>
                         </select>
