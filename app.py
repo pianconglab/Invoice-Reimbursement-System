@@ -151,6 +151,7 @@ def query_status():
 @log_operation('修改申请记录页面')
 def edit_application_page():
     search_result = None
+    attachments = []
     
     if request.method == 'POST':
         invoice_number = request.form['search_invoice_number'].strip()
@@ -169,10 +170,43 @@ def edit_application_page():
                           'approval_comment', 'created_at', 'updated_at']
                 
                 search_result = {columns[i]: application[i] for i in range(len(columns))}
+                
+                # 查询附件信息
+                c.execute('SELECT * FROM attachments WHERE app_number = ?', (application[1],))
+                attachments = c.fetchall()
             else:
                 search_result = 'not_found'
     
-    return render_template('edit_application.html', search_result=search_result)
+    return render_template('edit_application.html', search_result=search_result, attachments=attachments)
+
+# 通过发票号码直接编辑申请记录
+@app.route('/edit_application/<invoice_number>')
+@log_operation('直接编辑申请记录')
+def edit_application_with_invoice(invoice_number):
+    search_result = None
+    attachments = []
+    
+    with sqlite3.connect('reimbursement.db') as conn:
+        c = conn.cursor()
+        c.execute('SELECT * FROM applications WHERE invoice_number = ?', (invoice_number,))
+        application = c.fetchone()
+    
+    if application:
+        # 将查询结果转换为字典格式以便在模板中使用
+        columns = ['id', 'app_number', 'purchaser', 'purchase_details', 'item_name', 
+                  'product_link', 'usage_type', 'item_type', 'quantity', 'purchase_time', 
+                  'invoice_number', 'invoice_amount', 'invoice_date', 'status', 
+                  'approval_comment', 'created_at', 'updated_at']
+        
+        search_result = {columns[i]: application[i] for i in range(len(columns))}
+        
+        # 查询附件信息
+        c.execute('SELECT * FROM attachments WHERE app_number = ?', (application[1],))
+        attachments = c.fetchall()
+    else:
+        flash('申请记录不存在')
+    
+    return render_template('edit_application.html', search_result=search_result, attachments=attachments)
 
 # 更新申请记录
 @app.route('/update', methods=['POST'])
@@ -208,6 +242,30 @@ def update_application():
                    int(request.form['quantity']), request.form['purchase_time'], 
                    request.form['invoice_number'], float(request.form['invoice_amount']), 
                    request.form['invoice_date'], get_beijing_time(), app_number))
+        
+        # 处理新上传的附件
+        files = request.files.getlist('new_attachments')
+        uploaded_files = []
+        for file in files:
+            if file and file.filename:
+                ext = os.path.splitext(file.filename)[1]
+                base_filename = f"{request.form['invoice_number']}{ext}"
+                new_filename = base_filename
+                filepath = os.path.join(app.config['UPLOAD_FOLDER'], new_filename)
+                
+                counter = 1
+                while os.path.exists(filepath):
+                    new_filename = f"{request.form['invoice_number']}_{counter}{ext}"
+                    filepath = os.path.join(app.config['UPLOAD_FOLDER'], new_filename)
+                    counter += 1
+                
+                file.save(filepath)
+                uploaded_files.append(new_filename)
+                
+                c.execute('''INSERT INTO attachments 
+                             (app_number, original_filename, stored_filename, file_path)
+                             VALUES (?, ?, ?, ?)''',
+                          (app_number, file.filename, new_filename, filepath))
         
         conn.commit()
     
@@ -447,6 +505,43 @@ def download_file(filename):
         attachment_info = c.fetchone()
     
     return send_file(file_path)
+
+# 删除单个附件
+@app.route('/delete_attachment/<int:attachment_id>', methods=['POST'])
+@log_operation('删除附件')
+def delete_attachment(attachment_id):
+    with sqlite3.connect('reimbursement.db') as conn:
+        c = conn.cursor()
+        # 获取附件信息
+        c.execute('SELECT app_number, file_path FROM attachments WHERE id = ?', (attachment_id,))
+        attachment = c.fetchone()
+        
+        if attachment:
+            app_number, file_path = attachment
+            
+            # 检查申请状态，只允许删除待审批或驳回的申请的附件
+            c.execute('SELECT status, invoice_number FROM applications WHERE app_number = ?', (app_number,))
+            application = c.fetchone()
+            
+            if application and application[0] in ['待审批', '驳回']:
+                # 删除文件
+                if os.path.exists(file_path):
+                    os.remove(file_path)
+                
+                # 删除数据库记录
+                c.execute('DELETE FROM attachments WHERE id = ?', (attachment_id,))
+                conn.commit()
+                
+                flash('附件已删除')
+                
+                # 重定向到编辑页面并自动显示当前申请记录
+                return redirect(url_for('edit_application_with_invoice', invoice_number=application[1]))
+            else:
+                flash('只能删除待审批或已驳回申请的附件')
+        else:
+            flash('附件不存在')
+    
+    return redirect(url_for('edit_application_page'))
 
 # 删除申请记录
 @app.route('/admin/delete/<app_number>', methods=['POST'])

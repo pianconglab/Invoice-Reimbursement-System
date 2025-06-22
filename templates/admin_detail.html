@@ -102,25 +102,23 @@
                 <h5 class="mb-0">附件列表</h5>
             </div>
             <div class="card-body">
-                <div class="row">
-                    {% for attachment in attachments %}
-                    <div class="col-md-6 mb-3">
-                        <div class="border rounded p-3">
-                            <div class="d-flex align-items-center">
-                                <i class="bi bi-file-earmark text-primary me-2" style="font-size: 1.5rem;"></i>
-                                <div class="flex-grow-1">
-                                    <div class="fw-bold">{{ attachment[2] }}</div>
-                                    <small class="text-muted">原文件名：{{ attachment[1] }}</small>
-                                </div>
-                                <a href="{{ url_for('download_file', filename=attachment[2]) }}"
-                                    class="btn btn-sm btn-outline-primary">
-                                    <i class="bi bi-download"></i>
-                                </a>
-                            </div>
-                        </div>
+                {% for attachment in attachments %}
+                <div class="d-flex justify-content-between align-items-center mb-3 p-3 border rounded">
+                    <div>
+                        <i class="bi bi-file-earmark text-primary me-2"></i>
+                        <a href="{{ url_for('download_file', filename=attachment[3]) }}" target="_blank"
+                            class="text-decoration-none">
+                            {{ attachment[3] }}
+                        </a>
+                        <br>
+                        <small class="text-muted">原文件名: {{ attachment[2] }}</small>
                     </div>
-                    {% endfor %}
+                    <a href="{{ url_for('download_file', filename=attachment[3]) }}"
+                        class="btn btn-sm btn-outline-primary">
+                        <i class="bi bi-download"></i> 下载
+                    </a>
                 </div>
+                {% endfor %}
             </div>
         </div>
         {% endif %}
