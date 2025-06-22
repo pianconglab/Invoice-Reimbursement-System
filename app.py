@@ -113,6 +113,32 @@ def generate_app_number():
 def index():
     return render_template('index.html')
 
+# 查询申请状态
+@app.route('/query', methods=['POST'])
+@log_operation('查询申请状态')
+def query_application():
+    invoice_number = request.form['query_invoice_number'].strip()
+    query_result = None
+    
+    if invoice_number:
+        with sqlite3.connect('reimbursement.db') as conn:
+            c = conn.cursor()
+            c.execute('SELECT * FROM applications WHERE invoice_number = ?', (invoice_number,))
+            application = c.fetchone()
+        
+        if application:
+            # 将查询结果转换为字典格式以便在模板中使用
+            columns = ['id', 'app_number', 'purchaser', 'purchase_details', 'item_name', 
+                      'product_link', 'usage_type', 'item_type', 'quantity', 'purchase_time', 
+                      'invoice_number', 'invoice_amount', 'invoice_date', 'status', 
+                      'approval_comment', 'created_at', 'updated_at']
+            
+            query_result = {columns[i]: application[i] for i in range(len(columns))}
+        else:
+            query_result = 'not_found'
+    
+    return render_template('index.html', query_result=query_result)
+
 # 处理申请提交
 @app.route('/submit', methods=['POST'])
 @log_operation('提交报销申请')
@@ -345,6 +371,49 @@ def download_file(filename):
         attachment_info = c.fetchone()
     
     return send_file(file_path)
+
+# 删除申请记录
+@app.route('/admin/delete/<app_number>', methods=['POST'])
+@log_operation('删除申请记录')
+def delete_application(app_number):
+    if not session.get('admin_logged_in'):
+        flash('请先登录')
+        return redirect(url_for('admin_login'))
+    
+    with sqlite3.connect('reimbursement.db') as conn:
+        c = conn.cursor()
+        
+        # 先查询申请是否存在
+        c.execute('SELECT * FROM applications WHERE app_number = ?', (app_number,))
+        application = c.fetchone()
+        
+        if not application:
+            flash('申请记录不存在')
+            return redirect(url_for('admin_dashboard'))
+        
+        # 获取所有附件信息
+        c.execute('SELECT file_path FROM attachments WHERE app_number = ?', (app_number,))
+        attachments = c.fetchall()
+        
+        # 删除文件系统中的附件文件
+        for attachment in attachments:
+            file_path = attachment[0]
+            if os.path.exists(file_path):
+                try:
+                    os.remove(file_path)
+                except OSError as e:
+                    app.logger.warning(f"删除文件失败: {file_path}, 错误: {str(e)}")
+        
+        # 删除数据库中的附件记录
+        c.execute('DELETE FROM attachments WHERE app_number = ?', (app_number,))
+        
+        # 删除申请记录
+        c.execute('DELETE FROM applications WHERE app_number = ?', (app_number,))
+        
+        conn.commit()
+    
+    flash(f'申请记录 {app_number} 已成功删除')
+    return redirect(url_for('admin_dashboard'))
 
 # 管理员退出
 @app.route('/admin/logout')
