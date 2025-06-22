@@ -1,0 +1,200 @@
+{% extends "base.html" %}
+
+{% block title %}申请详情 - 骈聪课题组发票报销系统{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h2><i class="bi bi-file-text"></i> 申请详情</h2>
+    <a href="{{ url_for('admin_dashboard') }}" class="btn btn-secondary">
+        <i class="bi bi-arrow-left"></i> 返回列表
+    </a>
+</div>
+
+<div class="row">
+    <div class="col-md-8">
+        <!-- 申请信息 -->
+        <div class="card mb-4">
+            <div class="card-header">
+                <h5 class="mb-0">申请信息</h5>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <strong>申请编号：</strong>
+                        <code>{{ application[1] }}</code>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <strong>购买人：</strong>
+                        {{ application[2] }}
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <strong>物品名称：</strong>
+                        {{ application[4] }}
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <strong>使用途径：</strong>
+                        <span class="badge bg-{% if application[6] == '个人使用' %}info{% else %}success{% endif %}">
+                            {{ application[6] }}
+                        </span>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <strong>物品类型：</strong>
+                        {{ application[7] }}
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <strong>数量：</strong>
+                        {{ application[8] }}
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <strong>购买时间：</strong>
+                        {{ application[9] }}
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <strong>开票日期：</strong>
+                        {{ application[12] }}
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <strong>发票号码：</strong>
+                        {{ application[10] }}
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <strong>发票金额：</strong>
+                        <span class="text-success fw-bold">¥{{ "%.2f"|format(application[11]) }}</span>
+                    </div>
+                    <div class="col-12 mb-3">
+                        <strong>商品链接：</strong>
+                        {% if application[5] %}
+                        <a href="{{ application[5] }}" target="_blank" class="text-decoration-none">
+                            {{ application[5] }} <i class="bi bi-box-arrow-up-right"></i>
+                        </a>
+                        {% else %}
+                        <span class="text-muted">未提供</span>
+                        {% endif %}
+                    </div>
+                    <div class="col-12 mb-3">
+                        <strong>商品参数及用途说明：</strong>
+                        <div class="mt-2">
+                            {% if application[3] %}
+                            <div class="border rounded p-3 bg-light">
+                                {{ application[3]|replace('\n', '<br>')|safe }}
+                            </div>
+                            {% else %}
+                            <span class="text-muted">未填写</span>
+                            {% endif %}
+                        </div>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <strong>提交时间：</strong>
+                        {{ application[15] }}
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <strong>更新时间：</strong>
+                        {{ application[16] }}
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 附件 -->
+        {% if attachments %}
+        <div class="card mb-4">
+            <div class="card-header">
+                <h5 class="mb-0">附件列表</h5>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    {% for attachment in attachments %}
+                    <div class="col-md-6 mb-3">
+                        <div class="border rounded p-3">
+                            <div class="d-flex align-items-center">
+                                <i class="bi bi-file-earmark text-primary me-2" style="font-size: 1.5rem;"></i>
+                                <div class="flex-grow-1">
+                                    <div class="fw-bold">{{ attachment[2] }}</div>
+                                    <small class="text-muted">原文件名：{{ attachment[1] }}</small>
+                                </div>
+                                <a href="{{ url_for('download_file', filename=attachment[2]) }}"
+                                    class="btn btn-sm btn-outline-primary">
+                                    <i class="bi bi-download"></i>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+        {% endif %}
+    </div>
+
+    <div class="col-md-4">
+        <!-- 当前状态 -->
+        <div class="card mb-4">
+            <div class="card-header">
+                <h5 class="mb-0">当前状态</h5>
+            </div>
+            <div class="card-body text-center">
+                {% if application[13] == '待审批' %}
+                <i class="bi bi-clock text-warning" style="font-size: 3rem;"></i>
+                <div class="mt-2">
+                    <span class="badge bg-warning fs-6">{{ application[13] }}</span>
+                </div>
+                {% elif application[13] == '审批中' %}
+                <i class="bi bi-hourglass-split text-primary" style="font-size: 3rem;"></i>
+                <div class="mt-2">
+                    <span class="badge bg-primary fs-6">{{ application[13] }}</span>
+                </div>
+                {% elif application[13] == '已报销' %}
+                <i class="bi bi-check-circle text-success" style="font-size: 3rem;"></i>
+                <div class="mt-2">
+                    <span class="badge bg-success fs-6">{{ application[13] }}</span>
+                </div>
+                {% elif application[13] == '驳回' %}
+                <i class="bi bi-x-circle text-danger" style="font-size: 3rem;"></i>
+                <div class="mt-2">
+                    <span class="badge bg-danger fs-6">{{ application[13] }}</span>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- 审批操作 -->
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0">审批操作</h5>
+            </div>
+            <div class="card-body">
+                <form action="{{ url_for('approve_application', app_number=application[1]) }}" method="post">
+                    <div class="mb-3">
+                        <label for="status" class="form-label">审批状态</label>
+                        <select class="form-select" id="status" name="status" required>
+                            <option value="">请选择状态</option>
+                            <option value="审批中" {% if application[13]=='审批中' %}selected{% endif %}>审批中</option>
+                            <option value="已报销" {% if application[13]=='已报销' %}selected{% endif %}>已报销</option>
+                            <option value="驳回" {% if application[13]=='驳回' %}selected{% endif %}>驳回</option>
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label for="comment" class="form-label">审批意见</label>
+                        <textarea class="form-control" id="comment" name="comment"
+                            rows="3">{{ application[14] or '' }}</textarea>
+                    </div>
+                    <div class="d-grid">
+                        <button type="submit" class="btn btn-primary">
+                            <i class="bi bi-check-lg"></i> 提交审批
+                        </button>
+                    </div>
+                </form>
+
+                {% if application[14] %}
+                <div class="mt-3">
+                    <strong>历史审批意见：</strong>
+                    <div class="mt-2 p-3 bg-light rounded">
+                        {{ application[14]|replace('\n', '<br>')|safe }}
+                    </div>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

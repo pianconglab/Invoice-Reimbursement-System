@@ -1,0 +1,102 @@
+{% extends "base.html" %}
+
+{% block title %}报销申请表单 - 骈聪课题组发票报销系统{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-8">
+        <div class="card">
+            <div class="card-header">
+                <h4 class="mb-0"><i class="bi bi-receipt"></i> 骈聪课题组发票报销申请表</h4>
+            </div>
+            <div class="card-body">
+                <form action="{{ url_for('submit_application') }}" method="post" enctype="multipart/form-data">
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label for="purchaser" class="form-label">购买人 <span class="text-danger">*</span></label>
+                            <input type="text" class="form-control" id="purchaser" name="purchaser" required>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label for="item_name" class="form-label">物品名称 <span class="text-danger">*</span></label>
+                            <input type="text" class="form-control" id="item_name" name="item_name" required>
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="purchase_details" class="form-label">商品参数及用途说明</label>
+                        <textarea class="form-control" id="purchase_details" name="purchase_details"
+                            rows="3"></textarea>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="product_link" class="form-label">商品链接</label>
+                        <input type="url" class="form-control" id="product_link" name="product_link">
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label for="usage_type" class="form-label">使用途径 <span class="text-danger">*</span></label>
+                            <select class="form-select" id="usage_type" name="usage_type" required>
+                                <option value="">请选择</option>
+                                <option value="个人使用">个人使用</option>
+                                <option value="课题组公用">课题组公用</option>
+                            </select>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label for="item_type" class="form-label">物品类型 <span class="text-danger">*</span></label>
+                            <select class="form-select" id="item_type" name="item_type" required>
+                                <option value="">请选择</option>
+                                <option value="实物产品">实物产品</option>
+                                <option value="虚拟产品">虚拟产品</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-4 mb-3">
+                            <label for="quantity" class="form-label">数量 <span class="text-danger">*</span></label>
+                            <input type="number" class="form-control" id="quantity" name="quantity" min="1" required>
+                        </div>
+                        <div class="col-md-4 mb-3">
+                            <label for="purchase_time" class="form-label">购买时间 <span
+                                    class="text-danger">*</span></label>
+                            <input type="date" class="form-control" id="purchase_time" name="purchase_time" required>
+                        </div>
+                        <div class="col-md-4 mb-3">
+                            <label for="invoice_date" class="form-label">开票日期 <span class="text-danger">*</span></label>
+                            <input type="date" class="form-control" id="invoice_date" name="invoice_date" required>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label for="invoice_number" class="form-label">发票号码 <span
+                                    class="text-danger">*</span></label>
+                            <input type="text" class="form-control" id="invoice_number" name="invoice_number" required>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label for="invoice_amount" class="form-label">发票金额 <span
+                                    class="text-danger">*</span></label>
+                            <input type="number" class="form-control" id="invoice_amount" name="invoice_amount"
+                                step="0.01" min="0" required>
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="attachments" class="form-label">上传附件</label>
+                        <input type="file" class="form-control" id="attachments" name="attachments" multiple
+                            accept=".pdf,.jpg,.jpeg,.png,.doc,.docx">
+                        <div class="form-text">支持上传多个文件，格式：PDF、JPG、JPEG、PNG、GIF、BMP、WEBP、TIFF，最大50MB</div>
+                    </div>
+
+                    <div class="d-grid">
+                        <button type="submit" class="btn btn-primary btn-lg">
+                            <i class="bi bi-send"></i> 提交申请
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

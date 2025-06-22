@@ -1,0 +1,209 @@
+{% extends "base.html" %}
+
+{% block title %}管理后台 - 骈聪课题组发票报销系统{% endblock %}
+
+{% block scripts %}
+<style>
+    .sortable {
+        cursor: pointer;
+        user-select: none;
+    }
+
+    .sortable:hover {
+        background-color: #f8f9fa;
+    }
+
+    .sort-icon {
+        font-size: 0.8rem;
+        opacity: 0.5;
+    }
+
+    .sortable.active .sort-icon {
+        opacity: 1;
+    }
+</style>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const sortableHeaders = document.querySelectorAll('.sortable');
+        const currentSort = '{{ request.args.get("sort", "") }}';
+        const currentOrder = '{{ request.args.get("order", "") }}';
+
+        // 更新当前排序字段的图标
+        sortableHeaders.forEach(header => {
+            const sortField = header.dataset.sort;
+            const icon = header.querySelector('.sort-icon');
+
+            if (sortField === currentSort) {
+                header.classList.add('active');
+                if (currentOrder === 'asc') {
+                    icon.className = 'bi bi-chevron-up sort-icon';
+                } else {
+                    icon.className = 'bi bi-chevron-down sort-icon';
+                }
+            }
+        });
+
+        // 添加点击事件
+        sortableHeaders.forEach(header => {
+            header.addEventListener('click', function () {
+                const sortField = this.dataset.sort;
+                let newOrder = 'asc';
+
+                // 如果点击的是当前排序字段，则切换排序方向
+                if (sortField === currentSort) {
+                    newOrder = currentOrder === 'asc' ? 'desc' : 'asc';
+                }
+
+                // 构建新的URL参数
+                const url = new URL(window.location);
+                url.searchParams.set('sort', sortField);
+                url.searchParams.set('order', newOrder);
+
+                // 跳转到新URL
+                window.location.href = url.toString();
+            });
+        });
+    });
+</script>
+{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h2><i class="bi bi-speedometer2"></i> 管理后台</h2>
+    <div>
+        <a href="{{ url_for('export_excel') }}" class="btn btn-success">
+            <i class="bi bi-file-earmark-excel"></i> 导出Excel
+        </a>
+    </div>
+</div>
+
+<!-- 搜索筛选表单 -->
+<div class="card mb-4">
+    <div class="card-body">
+        <form method="get" class="row g-3">
+            <div class="col-md-3">
+                <label for="purchaser" class="form-label">购买人</label>
+                <input type="text" class="form-control" id="purchaser" name="purchaser"
+                    value="{{ request.args.get('purchaser', '') }}">
+            </div>
+            <div class="col-md-3">
+                <label for="status" class="form-label">状态</label>
+                <select class="form-select" id="status" name="status">
+                    <option value="">全部状态</option>
+                    <option value="待审批" {% if request.args.get('status')=='待审批' %}selected{% endif %}>待审批</option>
+                    <option value="审批中" {% if request.args.get('status')=='审批中' %}selected{% endif %}>审批中</option>
+                    <option value="已报销" {% if request.args.get('status')=='已报销' %}selected{% endif %}>已报销</option>
+                    <option value="驳回" {% if request.args.get('status')=='驳回' %}selected{% endif %}>驳回</option>
+                </select>
+            </div>
+            <div class="col-md-3">
+                <label for="usage" class="form-label">使用途径</label>
+                <select class="form-select" id="usage" name="usage">
+                    <option value="">全部</option>
+                    <option value="个人使用" {% if request.args.get('usage')=='个人使用' %}selected{% endif %}>个人使用</option>
+                    <option value="课题组公用" {% if request.args.get('usage')=='课题组公用' %}selected{% endif %}>课题组公用</option>
+                </select>
+            </div>
+            <div class="col-md-3 d-flex align-items-end">
+                <button type="submit" class="btn btn-primary me-2">
+                    <i class="bi bi-search"></i> 搜索
+                </button>
+                <a href="{{ url_for('admin_dashboard') }}" class="btn btn-secondary">
+                    <i class="bi bi-arrow-clockwise"></i> 重置
+                </a>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- 申请列表 -->
+<div class="card">
+    <div class="card-header">
+        <h5 class="mb-0">申请列表 (共 {{ applications|length }} 条)</h5>
+    </div>
+    <div class="table-responsive">
+        <table class="table table-hover mb-0">
+            <thead class="table-light">
+                <tr>
+                    <th>申请编号</th>
+                    <th class="sortable" data-sort="purchaser">
+                        购买人
+                        <i class="bi bi-chevron-expand sort-icon"></i>
+                    </th>
+                    <th class="sortable" data-sort="item_name">
+                        物品名称
+                        <i class="bi bi-chevron-expand sort-icon"></i>
+                    </th>
+                    <th class="sortable" data-sort="item_type">
+                        物品类型
+                        <i class="bi bi-chevron-expand sort-icon"></i>
+                    </th>
+                    <th>使用途径</th>
+                    <th class="sortable" data-sort="invoice_number">
+                        发票号码
+                        <i class="bi bi-chevron-expand sort-icon"></i>
+                    </th>
+                    <th class="sortable" data-sort="invoice_amount">
+                        发票金额
+                        <i class="bi bi-chevron-expand sort-icon"></i>
+                    </th>
+                    <th class="sortable" data-sort="purchase_time">
+                        购买日期
+                        <i class="bi bi-chevron-expand sort-icon"></i>
+                    </th>
+                    <th class="sortable" data-sort="invoice_date">
+                        开票日期
+                        <i class="bi bi-chevron-expand sort-icon"></i>
+                    </th>
+                    <th class="sortable" data-sort="status">
+                        状态
+                        <i class="bi bi-chevron-expand sort-icon"></i>
+                    </th>
+                    <th>操作</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for app in applications %}
+                <tr>
+                    <td><code>{{ app[1] }}</code></td>
+                    <td>{{ app[2] }}</td>
+                    <td>{{ app[4] }}</td>
+                    <td>{{ app[7] }}</td>
+                    <td>
+                        <span class="badge bg-{% if app[6] == '个人使用' %}info{% else %}success{% endif %}">
+                            {{ app[6] }}
+                        </span>
+                    </td>
+                    <td><code>{{ app[10] }}</code></td>
+                    <td>¥{{ "%.2f"|format(app[11]) }}</td>
+                    <td>{{ app[9] }}</td>
+                    <td>{{ app[12] }}</td>
+                    <td>
+                        {% if app[13] == '待审批' %}
+                        <span class="badge bg-warning">{{ app[13] }}</span>
+                        {% elif app[13] == '审批中' %}
+                        <span class="badge bg-primary">{{ app[13] }}</span>
+                        {% elif app[13] == '已报销' %}
+                        <span class="badge bg-success">{{ app[13] }}</span>
+                        {% elif app[13] == '驳回' %}
+                        <span class="badge bg-danger">{{ app[13] }}</span>
+                        {% endif %}
+                    </td>
+                    <td>
+                        <a href="{{ url_for('admin_application_detail', app_number=app[1]) }}"
+                            class="btn btn-sm btn-outline-primary">
+                            <i class="bi bi-eye"></i> 查看
+                        </a>
+                    </td>
+                </tr>
+                {% else %}
+                <tr>
+                    <td colspan="11" class="text-center text-muted py-4">暂无申请记录</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}
