@@ -152,6 +152,14 @@
         const deleteModal = new bootstrap.Modal(document.getElementById('deleteModal'));
         deleteModal.show();
     }
+
+    // 切换每页显示条数
+    function changePerPage(perPage) {
+        const url = new URL(window.location);
+        url.searchParams.set('per_page', perPage);
+        url.searchParams.set('page', 1); // 重置到第一页
+        window.location.href = url.toString();
+    }
 </script>
 {% endblock %}
 
@@ -252,8 +260,16 @@
 
     <!-- 申请列表 -->
     <div class="card">
-        <div class="card-header">
-            <h5 class="mb-0">申请列表 (共 {{ applications|length }} 条)</h5>
+        <div class="card-header d-flex justify-content-between align-items-center">
+            <h5 class="mb-0">申请列表 (共 {{ total_count }} 条，第 {{ page }} / {{ total_pages }} 页)</h5>
+            <div class="d-flex align-items-center gap-2">
+                <small class="text-muted">每页显示：</small>
+                <select class="form-select form-select-sm" style="width: auto;" onchange="changePerPage(this.value)">
+                    <option value="25" {% if per_page==25 %}selected{% endif %}>25</option>
+                    <option value="50" {% if per_page==50 %}selected{% endif %}>50</option>
+                    <option value="100" {% if per_page==100 %}selected{% endif %}>100</option>
+                </select>
+            </div>
         </div>
         <div class="table-responsive">
             <table class="table table-hover table-auto mb-0">
@@ -333,6 +349,39 @@
                 </tbody>
             </table>
         </div>
+
+        <!-- 分页导航 -->
+        {% if total_pages > 1 %}
+        <div class="card-footer">
+            <nav aria-label="分页导航">
+                <ul class="pagination pagination-sm justify-content-center mb-0">
+                    <li class="page-item {% if not has_prev %}disabled{% endif %}">
+                        <a class="page-link"
+                            href="{% if has_prev %}{{ url_for('admin_dashboard', page=page-1, per_page=per_page, **request.args) }}{% else %}#{% endif %}">上一页</a>
+                    </li>
+
+                    {% for p in range(1, total_pages + 1) %}
+                    {% if p <= 3 or p> total_pages - 3 or (p >= page - 1 and p <= page + 1) %} <li
+                            class="page-item {% if p == page %}active{% endif %}">
+                            <a class="page-link"
+                                href="{{ url_for('admin_dashboard', page=p, per_page=per_page, **request.args) }}">{{ p
+                                }}</a>
+                            </li>
+                            {% elif p == 4 and page > 5 %}
+                            <li class="page-item disabled"><span class="page-link">...</span></li>
+                            {% elif p == total_pages - 3 and page < total_pages - 4 %} <li class="page-item disabled">
+                                <span class="page-link">...</span></li>
+                                {% endif %}
+                                {% endfor %}
+
+                                <li class="page-item {% if not has_next %}disabled{% endif %}">
+                                    <a class="page-link"
+                                        href="{% if has_next %}{{ url_for('admin_dashboard', page=page+1, per_page=per_page, **request.args) }}{% else %}#{% endif %}">下一页</a>
+                                </li>
+                </ul>
+            </nav>
+        </div>
+        {% endif %}
     </div>
 
     <!-- 删除确认模态框 -->

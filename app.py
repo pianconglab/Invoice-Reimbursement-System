@@ -391,6 +391,13 @@ def admin_dashboard():
         sort_field = request.args.get('sort', 'created_at')
         sort_order = request.args.get('order', 'desc')
         
+        # 分页参数
+        per_page = int(request.args.get('per_page', 50))
+        if per_page not in [25, 50, 100]:
+            per_page = 50
+        page = int(request.args.get('page', 1))
+        offset = (page - 1) * per_page
+        
         sortable_fields = {
             'created_at': 'created_at',
             'purchaser': 'purchaser',
@@ -408,35 +415,61 @@ def admin_dashboard():
         if sort_order not in ['asc', 'desc']:
             sort_order = 'desc'
         
+        # 构建查询条件
         query = 'SELECT * FROM applications WHERE 1=1'
+        count_query = 'SELECT COUNT(*) FROM applications WHERE 1=1'
         params = []
         if search_purchaser:
             query += ' AND purchaser LIKE ?'
+            count_query += ' AND purchaser LIKE ?'
             params.append(f'%{search_purchaser}%')
         if search_status:
             query += ' AND status = ?'
+            count_query += ' AND status = ?'
             params.append(search_status)
         if search_usage:
             query += ' AND usage_type = ?'
+            count_query += ' AND usage_type = ?'
             params.append(search_usage)
         if purchase_date_start:
             query += ' AND purchase_time >= ?'
+            count_query += ' AND purchase_time >= ?'
             params.append(purchase_date_start)
         if purchase_date_end:
             query += ' AND purchase_time <= ?'
+            count_query += ' AND purchase_time <= ?'
             params.append(purchase_date_end)
         if invoice_date_start:
             query += ' AND invoice_date >= ?'
+            count_query += ' AND invoice_date >= ?'
             params.append(invoice_date_start)
         if invoice_date_end:
             query += ' AND invoice_date <= ?'
+            count_query += ' AND invoice_date <= ?'
             params.append(invoice_date_end)
         
-        query += f' ORDER BY {sortable_fields[sort_field]} {sort_order.upper()}'
-        c.execute(query, params)
+        # 获取总记录数
+        c.execute(count_query, params)
+        total_count = c.fetchone()[0]
+        
+        # 获取分页数据
+        query += f' ORDER BY {sortable_fields[sort_field]} {sort_order.upper()} LIMIT ? OFFSET ?'
+        c.execute(query, params + [per_page, offset])
         applications = c.fetchall()
+        
+        # 计算分页信息
+        total_pages = (total_count + per_page - 1) // per_page
+        has_prev = page > 1
+        has_next = page < total_pages
     
-    return render_template('admin_dashboard.html', applications=applications)
+    return render_template('admin_dashboard.html', 
+                         applications=applications,
+                         page=page,
+                         per_page=per_page,
+                         total_count=total_count,
+                         total_pages=total_pages,
+                         has_prev=has_prev,
+                         has_next=has_next)
 
 # 申请详情和审批
 @app.route('/admin/application/<app_number>')
