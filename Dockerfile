@@ -7,7 +7,9 @@ WORKDIR /app
 COPY requirements.txt .
 
 # 安装 Python 依赖，并清除缓存
-RUN pip install --no-cache-dir -r requirements.txt
+# RUN pip install --no-cache-dir -r requirements.txt
+# 使用腾讯云镜像源
+RUN pip install -i https://mirrors.cloud.tencent.com/pypi/simple --no-cache-dir -r requirements.txt
 
 # 复制项目中的所有其他文件（.dockerignore中指定的文件和目录会被忽略）
 COPY . .
