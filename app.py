@@ -4,7 +4,7 @@ from werkzeug.security import check_password_hash, generate_password_hash
 import sqlite3
 import os
 import uuid
-from datetime import datetime, timedelta
+from datetime import datetime, timezone, timedelta
 import pandas as pd
 from io import BytesIO
 import logging
@@ -14,20 +14,6 @@ app = Flask(__name__)
 app.config['SECRET_KEY'] = 'your-secret-key-change-this'
 app.config['UPLOAD_FOLDER'] = 'uploads'
 app.config['MAX_CONTENT_LENGTH'] = 50 * 1024 * 1024  # 50MB max file size
-
-# 北京时间转换过滤器
-@app.template_filter('beijing_time')
-def beijing_time_filter(timestamp_str):
-    if not timestamp_str:
-        return timestamp_str
-    try:
-        # 解析UTC时间戳
-        utc_time = datetime.strptime(timestamp_str, '%Y-%m-%d %H:%M:%S')
-        # 转换为北京时间 (UTC+8)
-        beijing_time = utc_time + timedelta(hours=8)
-        return beijing_time.strftime('%Y-%m-%d %H:%M:%S')
-    except:
-        return timestamp_str
 
 # 确保上传目录存在
 os.makedirs(app.config['UPLOAD_FOLDER'], exist_ok=True)
@@ -116,6 +102,11 @@ def init_db():
         c.execute('INSERT OR IGNORE INTO admins (username, password_hash) VALUES (?, ?)', 
                   ('admin', admin_hash))
         conn.commit()
+
+# 获取北京时间
+def get_beijing_time():
+    beijing_tz = timezone(timedelta(hours=8))
+    return datetime.now(beijing_tz).strftime('%Y-%m-%d %H:%M:%S')
 
 # 生成申请编号
 def generate_app_number():
@@ -209,14 +200,14 @@ def update_application():
                      purchaser = ?, purchase_details = ?, item_name = ?, product_link = ?, 
                      usage_type = ?, item_type = ?, quantity = ?, purchase_time = ?, 
                      invoice_number = ?, invoice_amount = ?, invoice_date = ?, 
-                     updated_at = CURRENT_TIMESTAMP
+                     updated_at = ?
                      WHERE app_number = ?''',
                   (request.form['purchaser'], request.form['purchase_details'], 
                    request.form['item_name'], request.form['product_link'], 
                    request.form['usage_type'], request.form['item_type'], 
                    int(request.form['quantity']), request.form['purchase_time'], 
                    request.form['invoice_number'], float(request.form['invoice_amount']), 
-                   request.form['invoice_date'], app_number))
+                   request.form['invoice_date'], get_beijing_time(), app_number))
         
         conn.commit()
     
@@ -248,12 +239,13 @@ def submit_application():
         c.execute('''INSERT INTO applications 
                      (app_number, purchaser, purchase_details, item_name, product_link, 
                       usage_type, item_type, quantity, purchase_time, invoice_number, 
-                      invoice_amount, invoice_date)
-                     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)''',
+                      invoice_amount, invoice_date, created_at, updated_at)
+                     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)''',
                   (data['app_number'], data['purchaser'], data['purchase_details'], 
                    data['item_name'], data['product_link'], data['usage_type'], 
                    data['item_type'], data['quantity'], data['purchase_time'], 
-                   data['invoice_number'], data['invoice_amount'], data['invoice_date']))
+                   data['invoice_number'], data['invoice_amount'], data['invoice_date'],
+                   get_beijing_time(), get_beijing_time()))
         
         files = request.files.getlist('attachments')
         uploaded_files = []
@@ -406,8 +398,8 @@ def approve_application(app_number):
     
     with sqlite3.connect('reimbursement.db') as conn:
         c = conn.cursor()
-        c.execute('UPDATE applications SET status = ?, approval_comment = ?, updated_at = CURRENT_TIMESTAMP WHERE app_number = ?',
-                  (status, comment, app_number))
+        c.execute('UPDATE applications SET status = ?, approval_comment = ?, updated_at = ? WHERE app_number = ?',
+                  (status, comment, get_beijing_time(), app_number))
         conn.commit()
     
     flash('审批完成')
