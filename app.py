@@ -314,7 +314,7 @@ def export_excel():
     with sqlite3.connect('reimbursement.db') as conn:
         df = pd.read_sql_query('SELECT * FROM applications ORDER BY created_at DESC', conn)
     
-    df.columns = ['ID', '申请编号', '购买人', '采购明细', '物品名称', '商品链接', '使用途径', 
+    df.columns = ['ID', '申请编号', '购买人', '商品参数及用途说明', '物品名称', '商品链接', '使用途径', 
                   '物品类型', '数量', '购买时间', '发票号码', '发票金额', '开票日期', 
                   '状态', '审批意见', '创建时间', '更新时间']
     

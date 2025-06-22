@@ -1,13 +1,13 @@
 {% extends "base.html" %}
 
-{% block title %}报销申请表单 - 科研发票报销系统{% endblock %}
+{% block title %}报销申请表单 - 骈聪课题组发票报销系统{% endblock %}
 
 {% block content %}
 <div class="row justify-content-center">
     <div class="col-md-8">
         <div class="card">
             <div class="card-header">
-                <h4 class="mb-0"><i class="bi bi-receipt"></i> 科研发票报销申请表</h4>
+                <h4 class="mb-0"><i class="bi bi-receipt"></i> 骈聪课题组发票报销申请表</h4>
             </div>
             <div class="card-body">
                 <form action="{{ url_for('submit_application') }}" method="post" enctype="multipart/form-data">
@@ -23,7 +23,7 @@
                     </div>
 
                     <div class="mb-3">
-                        <label for="purchase_details" class="form-label">采购明细</label>
+                        <label for="purchase_details" class="form-label">商品参数及用途说明</label>
                         <textarea class="form-control" id="purchase_details" name="purchase_details"
                             rows="3"></textarea>
                     </div>
