@@ -13,6 +13,8 @@
 
 ## 安装运行
 
+### 直接安装
+
 1. 安装依赖：
 
 ```bash
@@ -25,12 +27,34 @@ pip install -r requirements.txt
 python app.py
 ```
 
-3. 访问系统：
+### 使用 Docker 安装
+
+1. 构建镜像：
+
+```bash
+docker build -t invoice-reimbursement-system .
+```
+
+2. 运行系统：
+
+```bash
+docker run -d \
+  -p 5000:5000 \
+  -e GUNICORN_WORKERS=2 \
+  -v "$(pwd)/uploads:/app/uploads" \
+  -v "$(pwd)/logs:/app/logs" \
+  -v "$(pwd)/reimbursement.db:/app/reimbursement.db" \
+  --name reimbursement-app \
+  --restart=always \
+  invoice-reimbursement-system:latest
+```
+
+## 访问系统
 
 - 用户端：<http://localhost:5000>
 - 管理后台：<http://localhost:5000/admin/login>
 
-## 默认管理员账户
+默认管理员账户
 
 - 用户名：`admin`
 - 密码：`admin123`
