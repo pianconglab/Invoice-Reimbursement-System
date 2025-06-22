@@ -1,0 +1,189 @@
+{% extends "base.html" %}
+
+{% block title %}修改申请记录 - 骈聪课题组发票报销系统{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-10">
+        <div class="card">
+            <div class="card-header">
+                <h4 class="mb-0"><i class="bi bi-pencil-square"></i> 修改申请记录</h4>
+            </div>
+            <div class="card-body">
+                <!-- 查找申请 -->
+                <div class="card mb-4">
+                    <div class="card-header">
+                        <h6 class="mb-0"><i class="bi bi-search"></i> 查找申请记录</h6>
+                    </div>
+                    <div class="card-body">
+                        <form action="{{ url_for('edit_application_page') }}" method="post">
+                            <div class="row">
+                                <div class="col-md-8 mb-3">
+                                    <label for="search_invoice_number" class="form-label">发票号码</label>
+                                    <input type="text" class="form-control" id="search_invoice_number"
+                                        name="search_invoice_number" placeholder="请输入发票号码查找申请记录"
+                                        value="{{ request.form.get('search_invoice_number', '') }}" required>
+                                </div>
+                                <div class="col-md-4 mb-3 d-flex align-items-end">
+                                    <button type="submit" class="btn btn-success w-100">
+                                        <i class="bi bi-search"></i> 查找记录
+                                    </button>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+
+                {% if search_result %}
+                {% if search_result == 'not_found' %}
+                <div class="alert alert-warning" role="alert">
+                    <i class="bi bi-exclamation-triangle"></i>
+                    <strong>未找到记录：</strong>没有找到对应的申请记录，请检查发票号码是否正确。
+                </div>
+                {% elif search_result.status not in ['待审批', '驳回'] %}
+                <div class="alert alert-warning" role="alert">
+                    <i class="bi bi-info-circle"></i>
+                    <strong>无法修改：</strong>只能修改状态为"待审批"或"驳回"的申请记录。<br>
+                    当前状态：<span class="badge bg-secondary">{{ search_result.status }}</span>
+                    申请编号：<code>{{ search_result.app_number }}</code>
+                </div>
+                {% else %}
+                <!-- 修改表单 -->
+                <div class="card">
+                    <div class="card-header">
+                        <h6 class="mb-0"><i class="bi bi-pencil"></i> 编辑申请信息</h6>
+                    </div>
+                    <div class="card-body">
+                        <div class="alert alert-info" role="alert">
+                            <i class="bi bi-info-circle"></i>
+                            正在修改申请编号：<strong>{{ search_result.app_number }}</strong>
+                            （状态：<span class="badge bg-secondary">{{ search_result.status }}</span>）
+                        </div>
+
+                        <form action="{{ url_for('update_application') }}" method="post">
+                            <input type="hidden" name="app_number" value="{{ search_result.app_number }}">
+
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <label for="edit_purchaser" class="form-label">购买人 <span
+                                            class="text-danger">*</span></label>
+                                    <input type="text" class="form-control" id="edit_purchaser" name="purchaser"
+                                        value="{{ search_result.purchaser }}" required>
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label for="edit_item_name" class="form-label">物品名称 <span
+                                            class="text-danger">*</span></label>
+                                    <input type="text" class="form-control" id="edit_item_name" name="item_name"
+                                        value="{{ search_result.item_name }}" required>
+                                </div>
+                            </div>
+
+                            <div class="mb-3">
+                                <label for="edit_purchase_details" class="form-label">商品参数及用途说明</label>
+                                <textarea class="form-control" id="edit_purchase_details" name="purchase_details"
+                                    rows="3">{{ search_result.purchase_details or '' }}</textarea>
+                            </div>
+
+                            <div class="mb-3">
+                                <label for="edit_product_link" class="form-label">商品链接</label>
+                                <input type="url" class="form-control" id="edit_product_link" name="product_link"
+                                    value="{{ search_result.product_link or '' }}">
+                            </div>
+
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <label for="edit_usage_type" class="form-label">使用途径 <span
+                                            class="text-danger">*</span></label>
+                                    <select class="form-select" id="edit_usage_type" name="usage_type" required>
+                                        <option value="个人使用" {% if search_result.usage_type=='个人使用' %}selected{% endif
+                                            %}>个人使用</option>
+                                        <option value="课题组公用" {% if search_result.usage_type=='课题组公用' %}selected{% endif
+                                            %}>课题组公用</option>
+                                    </select>
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label for="edit_item_type" class="form-label">物品类型 <span
+                                            class="text-danger">*</span></label>
+                                    <select class="form-select" id="edit_item_type" name="item_type" required>
+                                        <option value="实物产品" {% if search_result.item_type=='实物产品' %}selected{% endif
+                                            %}>实物产品</option>
+                                        <option value="虚拟产品" {% if search_result.item_type=='虚拟产品' %}selected{% endif
+                                            %}>虚拟产品</option>
+                                    </select>
+                                </div>
+                            </div>
+
+                            <div class="row">
+                                <div class="col-md-4 mb-3">
+                                    <label for="edit_quantity" class="form-label">数量 <span
+                                            class="text-danger">*</span></label>
+                                    <input type="number" class="form-control" id="edit_quantity" name="quantity" min="1"
+                                        value="{{ search_result.quantity }}" required>
+                                </div>
+                                <div class="col-md-4 mb-3">
+                                    <label for="edit_purchase_time" class="form-label">购买时间 <span
+                                            class="text-danger">*</span></label>
+                                    <input type="date" class="form-control" id="edit_purchase_time" name="purchase_time"
+                                        value="{{ search_result.purchase_time }}" required>
+                                </div>
+                                <div class="col-md-4 mb-3">
+                                    <label for="edit_invoice_date" class="form-label">开票日期 <span
+                                            class="text-danger">*</span></label>
+                                    <input type="date" class="form-control" id="edit_invoice_date" name="invoice_date"
+                                        value="{{ search_result.invoice_date }}" required>
+                                </div>
+                            </div>
+
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <label for="edit_invoice_number" class="form-label">发票号码 <span
+                                            class="text-danger">*</span></label>
+                                    <input type="text" class="form-control" id="edit_invoice_number"
+                                        name="invoice_number" value="{{ search_result.invoice_number }}" required>
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label for="edit_invoice_amount" class="form-label">发票金额 <span
+                                            class="text-danger">*</span></label>
+                                    <input type="number" class="form-control" id="edit_invoice_amount"
+                                        name="invoice_amount" step="0.01" min="0"
+                                        value="{{ search_result.invoice_amount }}" required>
+                                </div>
+                            </div>
+
+                            <div class="row mt-4">
+                                <div class="col-md-6">
+                                    <button type="submit" class="btn btn-primary">
+                                        <i class="bi bi-check-circle"></i> 保存修改
+                                    </button>
+                                    <a href="{{ url_for('edit_application_page') }}" class="btn btn-secondary ms-2">
+                                        <i class="bi bi-x-circle"></i> 取消修改
+                                    </a>
+                                </div>
+                                <div class="col-md-6 text-end">
+                                    <small class="text-muted">
+                                        <strong>原始信息：</strong><br>
+                                        申请编号：{{ search_result.app_number }}<br>
+                                        提交时间：{{ search_result.created_at }}<br>
+                                        最后更新：{{ search_result.updated_at }}
+                                    </small>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+                {% endif %}
+                {% endif %}
+
+                <div class="mt-4 text-center">
+                    <a href="{{ url_for('query_status') }}" class="btn btn-outline-primary">
+                        <i class="bi bi-search"></i> 查询报销状态
+                    </a>
+                    <a href="{{ url_for('index') }}" class="btn btn-outline-secondary ms-2">
+                        <i class="bi bi-plus-circle"></i> 提交新申请
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,233 @@
+{% extends "base.html" %}
+
+{% block title %}查询申请状态 - 骈聪课题组发票报销系统{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-8">
+        <div class="card">
+            <div class="card-header">
+                <h4 class="mb-0"><i class="bi bi-search"></i> 查询报销状态</h4>
+            </div>
+            <div class="card-body">
+                <form action="{{ url_for('query_status') }}" method="post">
+                    <div class="row">
+                        <div class="col-md-8 mb-3">
+                            <label for="query_invoice_number" class="form-label">发票号码</label>
+                            <input type="text" class="form-control" id="query_invoice_number"
+                                name="query_invoice_number" placeholder="请输入发票号码查询申请状态"
+                                value="{{ request.form.get('query_invoice_number', '') }}" required>
+                        </div>
+                        <div class="col-md-4 mb-3 d-flex align-items-end">
+                            <button type="submit" class="btn btn-primary w-100">
+                                <i class="bi bi-search"></i> 查询状态
+                            </button>
+                        </div>
+                    </div>
+                </form>
+
+                {% if query_result %}
+                <div class="mt-4">
+                    {% if query_result == 'not_found' %}
+                    <div class="alert alert-warning" role="alert">
+                        <i class="bi bi-exclamation-triangle"></i>
+                        <strong>未找到记录：</strong>没有找到对应的申请记录，请检查发票号码是否正确。
+                    </div>
+                    {% else %}
+                    <div class="card">
+                        <div class="card-header">
+                            <h5 class="mb-0"><i class="bi bi-info-circle"></i> 申请信息</h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="row g-2">
+                                <div class="col-12">
+                                    <div class="row align-items-center py-2 border-bottom">
+                                        <div class="col-4 col-sm-3">
+                                            <strong>申请编号：</strong>
+                                        </div>
+                                        <div class="col-8 col-sm-9">
+                                            <code>{{ query_result.app_number }}</code>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-12">
+                                    <div class="row align-items-center py-2 border-bottom">
+                                        <div class="col-4 col-sm-3">
+                                            <strong>购买人：</strong>
+                                        </div>
+                                        <div class="col-8 col-sm-9">
+                                            {{ query_result.purchaser }}
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-12">
+                                    <div class="row align-items-center py-2 border-bottom">
+                                        <div class="col-4 col-sm-3">
+                                            <strong>物品名称：</strong>
+                                        </div>
+                                        <div class="col-8 col-sm-9">
+                                            {{ query_result.item_name }}
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-12">
+                                    <div class="row align-items-center py-2 border-bottom">
+                                        <div class="col-4 col-sm-3">
+                                            <strong>使用途径：</strong>
+                                        </div>
+                                        <div class="col-8 col-sm-9">
+                                            <span
+                                                class="badge bg-{% if query_result.usage_type == '个人使用' %}info{% else %}success{% endif %}">
+                                                {{ query_result.usage_type }}
+                                            </span>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-12">
+                                    <div class="row align-items-center py-2 border-bottom">
+                                        <div class="col-4 col-sm-3">
+                                            <strong>物品类型：</strong>
+                                        </div>
+                                        <div class="col-8 col-sm-9">
+                                            {{ query_result.item_type }}
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-12">
+                                    <div class="row align-items-center py-2 border-bottom">
+                                        <div class="col-4 col-sm-3">
+                                            <strong>发票号码：</strong>
+                                        </div>
+                                        <div class="col-8 col-sm-9">
+                                            <code>{{ query_result.invoice_number }}</code>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-12">
+                                    <div class="row align-items-center py-2 border-bottom">
+                                        <div class="col-4 col-sm-3">
+                                            <strong>发票金额：</strong>
+                                        </div>
+                                        <div class="col-8 col-sm-9">
+                                            <span class="text-success fw-bold">¥{{
+                                                "%.2f"|format(query_result.invoice_amount) }}</span>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-12">
+                                    <div class="row align-items-center py-2 border-bottom">
+                                        <div class="col-4 col-sm-3">
+                                            <strong>购买时间：</strong>
+                                        </div>
+                                        <div class="col-8 col-sm-9">
+                                            {{ query_result.purchase_time }}
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-12">
+                                    <div class="row align-items-center py-2 border-bottom">
+                                        <div class="col-4 col-sm-3">
+                                            <strong>开票日期：</strong>
+                                        </div>
+                                        <div class="col-8 col-sm-9">
+                                            {{ query_result.invoice_date }}
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-12">
+                                    <div class="row align-items-center py-2">
+                                        <div class="col-4 col-sm-3">
+                                            <strong>提交时间：</strong>
+                                        </div>
+                                        <div class="col-8 col-sm-9">
+                                            {{ query_result.created_at }}
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- 商品描述 -->
+                            {% if query_result.purchase_details %}
+                            <div class="mt-4">
+                                <h6><strong>商品参数及用途说明：</strong></h6>
+                                <div class="bg-light p-3 rounded">
+                                    {{ query_result.purchase_details|replace('\n', '<br>')|safe }}
+                                </div>
+                            </div>
+                            {% endif %}
+
+                            <!-- 商品链接 -->
+                            {% if query_result.product_link %}
+                            <div class="mt-3">
+                                <strong>商品链接：</strong>
+                                <a href="{{ query_result.product_link }}" target="_blank" class="text-decoration-none">
+                                    {{ query_result.product_link }} <i class="bi bi-box-arrow-up-right"></i>
+                                </a>
+                            </div>
+                            {% endif %}
+
+                            <!-- 状态显示 -->
+                            <div class="mt-4 text-center">
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <div class="p-3 border rounded">
+                                            <h6 class="mb-2">当前状态</h6>
+                                            {% if query_result.status == '待审批' %}
+                                            <i class="bi bi-clock text-warning" style="font-size: 2rem;"></i>
+                                            <br><span class="badge bg-warning fs-6 mt-2">{{ query_result.status
+                                                }}</span>
+                                            {% elif query_result.status == '报销中' %}
+                                            <i class="bi bi-hourglass-split text-primary" style="font-size: 2rem;"></i>
+                                            <br><span class="badge bg-primary fs-6 mt-2">{{ query_result.status
+                                                }}</span>
+                                            {% elif query_result.status == '已报销' %}
+                                            <i class="bi bi-check-circle text-success" style="font-size: 2rem;"></i>
+                                            <br><span class="badge bg-success fs-6 mt-2">{{ query_result.status
+                                                }}</span>
+                                            {% elif query_result.status == '驳回' %}
+                                            <i class="bi bi-x-circle text-danger" style="font-size: 2rem;"></i>
+                                            <br><span class="badge bg-danger fs-6 mt-2">{{ query_result.status }}</span>
+                                            {% else %}
+                                            <i class="bi bi-question-circle text-secondary"
+                                                style="font-size: 2rem;"></i>
+                                            <br><span class="badge bg-secondary fs-6 mt-2">{{ query_result.status
+                                                }}</span>
+                                            {% endif %}
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        {% if query_result.approval_comment %}
+                                        <div class="p-3 border rounded">
+                                            <h6 class="mb-2">审批意见</h6>
+                                            <div class="text-start bg-light p-2 rounded">
+                                                {{ query_result.approval_comment|replace('\n', '<br>')|safe }}
+                                            </div>
+                                        </div>
+                                        {% else %}
+                                        <div class="p-3 border rounded">
+                                            <h6 class="mb-2">审批意见</h6>
+                                            <span class="text-muted">暂无审批意见</span>
+                                        </div>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    {% endif %}
+                </div>
+                {% endif %}
+
+                <div class="mt-4 text-center">
+                    <a href="{{ url_for('edit_application_page') }}" class="btn btn-outline-primary">
+                        <i class="bi bi-pencil-square"></i> 修改申请记录
+                    </a>
+                    <a href="{{ url_for('index') }}" class="btn btn-outline-secondary ms-2">
+                        <i class="bi bi-plus-circle"></i> 提交新申请
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -113,31 +113,101 @@ def generate_app_number():
 def index():
     return render_template('index.html')
 
-# 查询申请状态
-@app.route('/query', methods=['POST'])
+# 查询报销状态页面
+@app.route('/query_status', methods=['GET', 'POST'])
 @log_operation('查询申请状态')
-def query_application():
-    invoice_number = request.form['query_invoice_number'].strip()
+def query_status():
     query_result = None
     
-    if invoice_number:
-        with sqlite3.connect('reimbursement.db') as conn:
-            c = conn.cursor()
-            c.execute('SELECT * FROM applications WHERE invoice_number = ?', (invoice_number,))
-            application = c.fetchone()
+    if request.method == 'POST':
+        invoice_number = request.form['query_invoice_number'].strip()
         
-        if application:
-            # 将查询结果转换为字典格式以便在模板中使用
-            columns = ['id', 'app_number', 'purchaser', 'purchase_details', 'item_name', 
-                      'product_link', 'usage_type', 'item_type', 'quantity', 'purchase_time', 
-                      'invoice_number', 'invoice_amount', 'invoice_date', 'status', 
-                      'approval_comment', 'created_at', 'updated_at']
+        if invoice_number:
+            with sqlite3.connect('reimbursement.db') as conn:
+                c = conn.cursor()
+                c.execute('SELECT * FROM applications WHERE invoice_number = ?', (invoice_number,))
+                application = c.fetchone()
             
-            query_result = {columns[i]: application[i] for i in range(len(columns))}
-        else:
-            query_result = 'not_found'
+            if application:
+                # 将查询结果转换为字典格式以便在模板中使用
+                columns = ['id', 'app_number', 'purchaser', 'purchase_details', 'item_name', 
+                          'product_link', 'usage_type', 'item_type', 'quantity', 'purchase_time', 
+                          'invoice_number', 'invoice_amount', 'invoice_date', 'status', 
+                          'approval_comment', 'created_at', 'updated_at']
+                
+                query_result = {columns[i]: application[i] for i in range(len(columns))}
+            else:
+                query_result = 'not_found'
     
-    return render_template('index.html', query_result=query_result)
+    return render_template('query_status.html', query_result=query_result)
+
+# 修改申请记录页面
+@app.route('/edit_application', methods=['GET', 'POST'])
+@log_operation('修改申请记录页面')
+def edit_application_page():
+    search_result = None
+    
+    if request.method == 'POST':
+        invoice_number = request.form['search_invoice_number'].strip()
+        
+        if invoice_number:
+            with sqlite3.connect('reimbursement.db') as conn:
+                c = conn.cursor()
+                c.execute('SELECT * FROM applications WHERE invoice_number = ?', (invoice_number,))
+                application = c.fetchone()
+            
+            if application:
+                # 将查询结果转换为字典格式以便在模板中使用
+                columns = ['id', 'app_number', 'purchaser', 'purchase_details', 'item_name', 
+                          'product_link', 'usage_type', 'item_type', 'quantity', 'purchase_time', 
+                          'invoice_number', 'invoice_amount', 'invoice_date', 'status', 
+                          'approval_comment', 'created_at', 'updated_at']
+                
+                search_result = {columns[i]: application[i] for i in range(len(columns))}
+            else:
+                search_result = 'not_found'
+    
+    return render_template('edit_application.html', search_result=search_result)
+
+# 更新申请记录
+@app.route('/update', methods=['POST'])
+@log_operation('更新申请记录')
+def update_application():
+    app_number = request.form['app_number']
+    
+    # 首先检查申请是否存在
+    with sqlite3.connect('reimbursement.db') as conn:
+        c = conn.cursor()
+        c.execute('SELECT status FROM applications WHERE app_number = ?', (app_number,))
+        application = c.fetchone()
+        
+        if not application:
+            flash('申请记录不存在')
+            return redirect(url_for('index'))
+        
+        # 检查申请状态，只允许修改待审批或驳回的申请
+        if application[0] not in ['待审批', '驳回']:
+            flash('只能修改待审批或已驳回的申请记录')
+            return redirect(url_for('index'))
+        
+        # 更新申请记录
+        c.execute('''UPDATE applications SET 
+                     purchaser = ?, purchase_details = ?, item_name = ?, product_link = ?, 
+                     usage_type = ?, item_type = ?, quantity = ?, purchase_time = ?, 
+                     invoice_number = ?, invoice_amount = ?, invoice_date = ?, 
+                     updated_at = CURRENT_TIMESTAMP
+                     WHERE app_number = ?''',
+                  (request.form['purchaser'], request.form['purchase_details'], 
+                   request.form['item_name'], request.form['product_link'], 
+                   request.form['usage_type'], request.form['item_type'], 
+                   int(request.form['quantity']), request.form['purchase_time'], 
+                   request.form['invoice_number'], float(request.form['invoice_amount']), 
+                   request.form['invoice_date'], app_number))
+        
+        conn.commit()
+    
+    flash(f'申请记录 {app_number} 已成功更新')
+    return redirect(url_for('edit_application_page'))
 
 # 处理申请提交
 @app.route('/submit', methods=['POST'])
