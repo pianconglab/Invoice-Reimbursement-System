@@ -4,7 +4,7 @@ from werkzeug.security import check_password_hash, generate_password_hash
 import sqlite3
 import os
 import uuid
-from datetime import datetime
+from datetime import datetime, timedelta
 import pandas as pd
 from io import BytesIO
 import logging
@@ -14,6 +14,20 @@ app = Flask(__name__)
 app.config['SECRET_KEY'] = 'your-secret-key-change-this'
 app.config['UPLOAD_FOLDER'] = 'uploads'
 app.config['MAX_CONTENT_LENGTH'] = 50 * 1024 * 1024  # 50MB max file size
+
+# 北京时间转换过滤器
+@app.template_filter('beijing_time')
+def beijing_time_filter(timestamp_str):
+    if not timestamp_str:
+        return timestamp_str
+    try:
+        # 解析UTC时间戳
+        utc_time = datetime.strptime(timestamp_str, '%Y-%m-%d %H:%M:%S')
+        # 转换为北京时间 (UTC+8)
+        beijing_time = utc_time + timedelta(hours=8)
+        return beijing_time.strftime('%Y-%m-%d %H:%M:%S')
+    except:
+        return timestamp_str
 
 # 确保上传目录存在
 os.makedirs(app.config['UPLOAD_FOLDER'], exist_ok=True)
@@ -495,5 +509,5 @@ def admin_logout():
 
 if __name__ == '__main__':
     init_db()
-    app.logger.info("系统启动 - 数据库初始化完成, 服务器启动在 http://0.0.0.0:5000, 日志文件: logs/app.log")
+    app.logger.info("系统启动 - 数据库初始化完成, 服务器启动在 http://0.0.0.0:5000, 日志文件: logs/app.log，数据库文件: reimbursement.db，上传文件目录: uploads")
     app.run(debug=True, host='0.0.0.0', port=5000)

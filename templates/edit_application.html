@@ -163,8 +163,8 @@
                                     <small class="text-muted">
                                         <strong>原始信息：</strong><br>
                                         申请编号：{{ search_result.app_number }}<br>
-                                        提交时间：{{ search_result.created_at }}<br>
-                                        最后更新：{{ search_result.updated_at }}
+                                        提交时间：{{ search_result.created_at|beijing_time }}<br>
+                                        最后更新：{{ search_result.updated_at|beijing_time }}
                                     </small>
                                 </div>
                             </div>
