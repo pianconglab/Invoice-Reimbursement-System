@@ -1,0 +1,475 @@
+{
+    "page": {
+        "title": "修改申请记录 - 骈聪课题组发票报销系统",
+        "layout": "centered-container",
+        "components": [
+            {
+                "type": "row",
+                "justify": "center",
+                "children": [
+                    {
+                        "type": "col",
+                        "lg": 20,
+                        "md": 24,
+                        "children": [
+                            {
+                                "type": "card",
+                                "header": {
+                                    "type": "title",
+                                    "level": 4,
+                                    "content": "修改申请记录",
+                                    "icon": "bi-pencil-square"
+                                },
+                                "children": [
+                                    {
+                                        "type": "card",
+                                        "name": "search-section",
+                                        "style": {
+                                            "margin-bottom": "1.5rem"
+                                        },
+                                        "header": {
+                                            "type": "title",
+                                            "level": 6,
+                                            "content": "查找申请记录",
+                                            "icon": "bi-search"
+                                        },
+                                        "children": [
+                                            {
+                                                "type": "form",
+                                                "prop": "searchForm",
+                                                "children": [
+                                                    {
+                                                        "type": "row",
+                                                        "gutter": 20,
+                                                        "children": [
+                                                            {
+                                                                "type": "col",
+                                                                "md": 16,
+                                                                "children": [
+                                                                    {
+                                                                        "type": "form-item",
+                                                                        "label": "发票号码",
+                                                                        "prop": "search_invoice_number",
+                                                                        "children": [
+                                                                            {
+                                                                                "type": "input",
+                                                                                "prop": "search_invoice_number",
+                                                                                "placeholder": "请输入发票号码查找申请记录",
+                                                                                "required": true
+                                                                            }
+                                                                        ]
+                                                                    }
+                                                                ]
+                                                            },
+                                                            {
+                                                                "type": "col",
+                                                                "md": 8,
+                                                                "style": {
+                                                                    "align-self": "flex-end"
+                                                                },
+                                                                "children": [
+                                                                    {
+                                                                        "type": "form-item",
+                                                                        "children": [
+                                                                            {
+                                                                                "type": "button",
+                                                                                "label": "查找记录",
+                                                                                "button_type": "success",
+                                                                                "icon": "bi-search",
+                                                                                "style": {
+                                                                                    "width": "100%"
+                                                                                },
+                                                                                "event": "search_application"
+                                                                            }
+                                                                        ]
+                                                                    }
+                                                                ]
+                                                            }
+                                                        ]
+                                                    }
+                                                ]
+                                            }
+                                        ]
+                                    },
+                                    {
+                                        "type": "div",
+                                        "name": "result-section",
+                                        "condition_prop": "searchResult.status",
+                                        "children": [
+                                            {
+                                                "type": "alert",
+                                                "condition_value": "not_found",
+                                                "title": "未找到记录：没有找到对应的申请记录，请检查发票号码是否正确。",
+                                                "alert_type": "warning",
+                                                "show_icon": true
+                                            },
+                                            {
+                                                "type": "alert",
+                                                "condition_value": "not_editable",
+                                                "title": "无法修改：只能修改状态为“待审批”或“驳回”的申请记录。",
+                                                "alert_type": "warning",
+                                                "show_icon": true,
+                                                "description": "当前状态：{{ searchResult.data.status }} | 申请编号：{{ searchResult.data.app_number }}"
+                                            },
+                                            {
+                                                "type": "card",
+                                                "name": "edit-form-section",
+                                                "condition_value": "editable",
+                                                "header": {
+                                                    "type": "title",
+                                                    "level": 6,
+                                                    "content": "编辑申请信息",
+                                                    "icon": "bi-pencil"
+                                                },
+                                                "children": [
+                                                    {
+                                                        "type": "alert",
+                                                        "title": "正在修改申请编号：{{ searchResult.data.app_number }} (状态：{{ searchResult.data.status }})",
+                                                        "alert_type": "info",
+                                                        "show_icon": true
+                                                    },
+                                                    {
+                                                        "type": "form",
+                                                        "prop": "editForm",
+                                                        "label_position": "top",
+                                                        "children": [
+                                                            {
+                                                                "type": "row",
+                                                                "gutter": 20,
+                                                                "children": [
+                                                                    {
+                                                                        "type": "col",
+                                                                        "span": 12,
+                                                                        "children": [
+                                                                            {
+                                                                                "type": "form-item",
+                                                                                "label": "购买人",
+                                                                                "prop": "purchaser",
+                                                                                "required": true,
+                                                                                "children": [
+                                                                                    {
+                                                                                        "type": "input",
+                                                                                        "prop": "purchaser"
+                                                                                    }
+                                                                                ]
+                                                                            }
+                                                                        ]
+                                                                    },
+                                                                    {
+                                                                        "type": "col",
+                                                                        "span": 12,
+                                                                        "children": [
+                                                                            {
+                                                                                "type": "form-item",
+                                                                                "label": "物品名称",
+                                                                                "prop": "item_name",
+                                                                                "required": true,
+                                                                                "children": [
+                                                                                    {
+                                                                                        "type": "input",
+                                                                                        "prop": "item_name"
+                                                                                    }
+                                                                                ]
+                                                                            }
+                                                                        ]
+                                                                    }
+                                                                ]
+                                                            },
+                                                            {
+                                                                "type": "form-item",
+                                                                "label": "商品参数及用途说明",
+                                                                "prop": "purchase_details",
+                                                                "children": [
+                                                                    {
+                                                                        "type": "textarea",
+                                                                        "prop": "purchase_details",
+                                                                        "rows": 3
+                                                                    }
+                                                                ]
+                                                            },
+                                                            {
+                                                                "type": "form-item",
+                                                                "label": "商品链接",
+                                                                "prop": "product_link",
+                                                                "children": [
+                                                                    {
+                                                                        "type": "input",
+                                                                        "prop": "product_link",
+                                                                        "input_type": "url"
+                                                                    }
+                                                                ]
+                                                            },
+                                                            {
+                                                                "type": "row",
+                                                                "gutter": 20,
+                                                                "children": [
+                                                                    {
+                                                                        "type": "col",
+                                                                        "span": 12,
+                                                                        "children": [
+                                                                            {
+                                                                                "type": "form-item",
+                                                                                "label": "使用途径",
+                                                                                "prop": "usage_type",
+                                                                                "required": true,
+                                                                                "children": [
+                                                                                    {
+                                                                                        "type": "select",
+                                                                                        "prop": "usage_type",
+                                                                                        "options": [
+                                                                                            {
+                                                                                                "label": "个人使用",
+                                                                                                "value": "个人使用"
+                                                                                            },
+                                                                                            {
+                                                                                                "label": "课题组公用",
+                                                                                                "value": "课题组公用"
+                                                                                            }
+                                                                                        ]
+                                                                                    }
+                                                                                ]
+                                                                            }
+                                                                        ]
+                                                                    },
+                                                                    {
+                                                                        "type": "col",
+                                                                        "span": 12,
+                                                                        "children": [
+                                                                            {
+                                                                                "type": "form-item",
+                                                                                "label": "物品类型",
+                                                                                "prop": "item_type",
+                                                                                "required": true,
+                                                                                "children": [
+                                                                                    {
+                                                                                        "type": "select",
+                                                                                        "prop": "item_type",
+                                                                                        "options": [
+                                                                                            {
+                                                                                                "label": "实物产品",
+                                                                                                "value": "实物产品"
+                                                                                            },
+                                                                                            {
+                                                                                                "label": "虚拟产品",
+                                                                                                "value": "虚拟产品"
+                                                                                            }
+                                                                                        ]
+                                                                                    }
+                                                                                ]
+                                                                            }
+                                                                        ]
+                                                                    }
+                                                                ]
+                                                            },
+                                                            {
+                                                                "type": "row",
+                                                                "gutter": 20,
+                                                                "children": [
+                                                                    {
+                                                                        "type": "col",
+                                                                        "span": 8,
+                                                                        "children": [
+                                                                            {
+                                                                                "type": "form-item",
+                                                                                "label": "数量",
+                                                                                "prop": "quantity",
+                                                                                "required": true,
+                                                                                "children": [
+                                                                                    {
+                                                                                        "type": "input-number",
+                                                                                        "prop": "quantity",
+                                                                                        "min": 1
+                                                                                    }
+                                                                                ]
+                                                                            }
+                                                                        ]
+                                                                    },
+                                                                    {
+                                                                        "type": "col",
+                                                                        "span": 8,
+                                                                        "children": [
+                                                                            {
+                                                                                "type": "form-item",
+                                                                                "label": "购买时间",
+                                                                                "prop": "purchase_time",
+                                                                                "required": true,
+                                                                                "children": [
+                                                                                    {
+                                                                                        "type": "date-picker",
+                                                                                        "prop": "purchase_time"
+                                                                                    }
+                                                                                ]
+                                                                            }
+                                                                        ]
+                                                                    },
+                                                                    {
+                                                                        "type": "col",
+                                                                        "span": 8,
+                                                                        "children": [
+                                                                            {
+                                                                                "type": "form-item",
+                                                                                "label": "开票日期",
+                                                                                "prop": "invoice_date",
+                                                                                "required": true,
+                                                                                "children": [
+                                                                                    {
+                                                                                        "type": "date-picker",
+                                                                                        "prop": "invoice_date"
+                                                                                    }
+                                                                                ]
+                                                                            }
+                                                                        ]
+                                                                    }
+                                                                ]
+                                                            },
+                                                            {
+                                                                "type": "row",
+                                                                "gutter": 20,
+                                                                "children": [
+                                                                    {
+                                                                        "type": "col",
+                                                                        "span": 12,
+                                                                        "children": [
+                                                                            {
+                                                                                "type": "form-item",
+                                                                                "label": "发票号码",
+                                                                                "prop": "invoice_number",
+                                                                                "required": true,
+                                                                                "children": [
+                                                                                    {
+                                                                                        "type": "input",
+                                                                                        "prop": "invoice_number"
+                                                                                    }
+                                                                                ]
+                                                                            }
+                                                                        ]
+                                                                    },
+                                                                    {
+                                                                        "type": "col",
+                                                                        "span": 12,
+                                                                        "children": [
+                                                                            {
+                                                                                "type": "form-item",
+                                                                                "label": "发票金额",
+                                                                                "prop": "invoice_amount",
+                                                                                "required": true,
+                                                                                "children": [
+                                                                                    {
+                                                                                        "type": "input-number",
+                                                                                        "prop": "invoice_amount",
+                                                                                        "precision": 2,
+                                                                                        "step": "0.01",
+                                                                                        "min": 0
+                                                                                    }
+                                                                                ]
+                                                                            }
+                                                                        ]
+                                                                    }
+                                                                ]
+                                                            },
+                                                            {
+                                                                "type": "upload",
+                                                                "label": "附件管理",
+                                                                "prop": "attachments",
+                                                                "multiple": true,
+                                                                "auto_upload": false,
+                                                                "accept": ".pdf,.jpg,.jpeg,.png,.doc,.docx",
+                                                                "file_list_prop": "attachmentList",
+                                                                "on_remove_event": "deleteAttachment",
+                                                                "tip": "选择文件替换或新增附件，建议文件名包含订单编号，单个文件最大50MB"
+                                                            },
+                                                            {
+                                                                "type": "row",
+                                                                "align": "middle",
+                                                                "style": {
+                                                                    "margin-top": "2rem"
+                                                                },
+                                                                "children": [
+                                                                    {
+                                                                        "type": "col",
+                                                                        "span": 12,
+                                                                        "children": [
+                                                                            {
+                                                                                "type": "button",
+                                                                                "label": "保存修改",
+                                                                                "button_type": "primary",
+                                                                                "icon": "bi-check-circle",
+                                                                                "event": "submit_update"
+                                                                            },
+                                                                            {
+                                                                                "type": "button",
+                                                                                "label": "取消修改",
+                                                                                "button_type": "default",
+                                                                                "icon": "bi-x-circle",
+                                                                                "event": "cancel_update",
+                                                                                "style": {
+                                                                                    "margin-left": "10px"
+                                                                                }
+                                                                            }
+                                                                        ]
+                                                                    },
+                                                                    {
+                                                                        "type": "col",
+                                                                        "span": 12,
+                                                                        "style": {
+                                                                            "text-align": "right"
+                                                                        },
+                                                                        "children": [
+                                                                            {
+                                                                                "type": "text",
+                                                                                "content": "<strong>原始信息：</strong><br>申请编号：{{ searchResult.data.app_number }}<br>提交时间：{{ searchResult.data.created_at }}<br>最后更新：{{ searchResult.data.updated_at }}",
+                                                                                "is_html": true,
+                                                                                "style": {
+                                                                                    "font-size": "0.8em",
+                                                                                    "color": "#6c757d"
+                                                                                }
+                                                                            }
+                                                                        ]
+                                                                    }
+                                                                ]
+                                                            }
+                                                        ]
+                                                    }
+                                                ]
+                                            }
+                                        ]
+                                    },
+                                    {
+                                        "type": "div",
+                                        "style": {
+                                            "text-align": "center",
+                                            "margin-top": "2rem"
+                                        },
+                                        "children": [
+                                            {
+                                                "type": "button",
+                                                "label": "查询报销状态",
+                                                "button_type": "primary",
+                                                "style": "outline",
+                                                "icon": "bi-search",
+                                                "event": "navigate",
+                                                "route": "/query-status"
+                                            },
+                                            {
+                                                "type": "button",
+                                                "label": "提交新申请",
+                                                "button_type": "secondary",
+                                                "style": "outline",
+                                                "icon": "bi-plus-circle",
+                                                "event": "navigate",
+                                                "route": "/",
+                                                "style": {
+                                                    "margin-left": "1rem"
+                                                }
+                                            }
+                                        ]
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                ]
+            }
+        ]
+    }
+}
