@@ -10,6 +10,10 @@
                 <h4 class="mb-0"><i class="bi bi-receipt"></i> 骈聪课题组发票报销申请表</h4>
             </div>
             <div class="card-body">
+                <div class="alert alert-info mb-4">
+                    <i class="bi bi-info-circle"></i>
+                    <strong>填写说明：</strong><span class="text-danger">*</span> 为必填项，网络购买的商品请填写商品链接
+                </div>
                 <form action="{{ url_for('submit_application') }}" method="post" enctype="multipart/form-data">
                     <div class="row">
                         <div class="col-md-6 mb-3">
@@ -83,10 +87,10 @@
                     </div>
 
                     <div class="mb-3">
-                        <label for="attachments" class="form-label">上传附件</label>
+                        <label for="attachments" class="form-label">上传附件 <span class="text-danger">*</span></label>
                         <input type="file" class="form-control" id="attachments" name="attachments" multiple
-                            accept=".pdf,.jpg,.jpeg,.png,.doc,.docx">
-                        <div class="form-text">请上传发票及付款记录截图，文件名统一修改为订单编号，否则不予通过，单个文件最大50MB</div>
+                            accept=".pdf,.jpg,.jpeg,.png,.doc,.docx" required>
+                        <div class="form-text">请上传发票及付款记录截图，文件名统一修改为发票编号，否则不予通过，单个文件最大50MB</div>
                     </div>
 
                     <div class="d-grid">
