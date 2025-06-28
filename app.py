@@ -243,6 +243,22 @@ def update_application():
                    request.form['invoice_number'], float(request.form['invoice_amount']), 
                    request.form['invoice_date'], get_beijing_time(), app_number))
         
+        # 处理待删除的附件
+        deleted_attachments = request.form.get('deleted_attachments', '')
+        if deleted_attachments:
+            deleted_ids = [int(id.strip()) for id in deleted_attachments.split(',') if id.strip()]
+            for attachment_id in deleted_ids:
+                # 获取附件信息
+                c.execute('SELECT file_path FROM attachments WHERE id = ?', (attachment_id,))
+                attachment = c.fetchone()
+                if attachment:
+                    file_path = attachment[0]
+                    # 删除文件
+                    if os.path.exists(file_path):
+                        os.remove(file_path)
+                    # 删除数据库记录
+                    c.execute('DELETE FROM attachments WHERE id = ?', (attachment_id,))
+        
         # 处理新上传的附件
         files = request.files.getlist('new_attachments')
         uploaded_files = []
@@ -276,6 +292,15 @@ def update_application():
 @app.route('/submit', methods=['POST'])
 @log_operation('提交报销申请')
 def submit_application():
+    # 检查发票号码是否已存在
+    invoice_number = request.form['invoice_number']
+    with sqlite3.connect('reimbursement.db') as conn:
+        c = conn.cursor()
+        c.execute('SELECT COUNT(*) FROM applications WHERE invoice_number = ?', (invoice_number,))
+        if c.fetchone()[0] > 0:
+            flash(f'发票号码 {invoice_number} 已存在，请检查是否重复提交或使用其他发票号码')
+            return redirect(url_for('index'))
+    
     app_number = generate_app_number()
     data = {
         'app_number': app_number,
@@ -287,7 +312,7 @@ def submit_application():
         'item_type': request.form['item_type'],
         'quantity': int(request.form['quantity']),
         'purchase_time': request.form['purchase_time'],
-        'invoice_number': request.form['invoice_number'],
+        'invoice_number': invoice_number,
         'invoice_amount': float(request.form['invoice_amount']),
         'invoice_date': request.form['invoice_date']
     }
@@ -331,6 +356,15 @@ def submit_application():
         conn.commit()
     
     return redirect(url_for('success', app_number=app_number))
+
+# 检查发票号码是否存在的API
+@app.route('/check_invoice/<invoice_number>')
+def check_invoice_number(invoice_number):
+    with sqlite3.connect('reimbursement.db') as conn:
+        c = conn.cursor()
+        c.execute('SELECT COUNT(*) FROM applications WHERE invoice_number = ?', (invoice_number,))
+        exists = c.fetchone()[0] > 0
+    return {'exists': exists}
 
 # 提交成功页面
 @app.route('/success/<app_number>')
@@ -624,42 +658,7 @@ def download_file(filename):
     
     return send_file(file_path)
 
-# 删除单个附件
-@app.route('/delete_attachment/<int:attachment_id>', methods=['POST'])
-@log_operation('删除附件')
-def delete_attachment(attachment_id):
-    with sqlite3.connect('reimbursement.db') as conn:
-        c = conn.cursor()
-        # 获取附件信息
-        c.execute('SELECT app_number, file_path FROM attachments WHERE id = ?', (attachment_id,))
-        attachment = c.fetchone()
-        
-        if attachment:
-            app_number, file_path = attachment
-            
-            # 检查申请状态，只允许删除待审批或驳回的申请的附件
-            c.execute('SELECT status, invoice_number FROM applications WHERE app_number = ?', (app_number,))
-            application = c.fetchone()
-            
-            if application and application[0] in ['待审批', '驳回']:
-                # 删除文件
-                if os.path.exists(file_path):
-                    os.remove(file_path)
-                
-                # 删除数据库记录
-                c.execute('DELETE FROM attachments WHERE id = ?', (attachment_id,))
-                conn.commit()
-                
-                flash('附件已删除')
-                
-                # 重定向到编辑页面并自动显示当前申请记录
-                return redirect(url_for('edit_application_with_invoice', invoice_number=application[1]))
-            else:
-                flash('只能删除待审批或已驳回申请的附件')
-        else:
-            flash('附件不存在')
-    
-    return redirect(url_for('edit_application_page'))
+
 
 # 删除申请记录
 @app.route('/admin/delete/<app_number>', methods=['POST'])

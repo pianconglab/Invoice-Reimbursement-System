@@ -60,7 +60,8 @@
                             （状态：<span class="badge bg-secondary">{{ search_result.status }}</span>）
                         </div>
 
-                        <form action="{{ url_for('update_application') }}" method="post" enctype="multipart/form-data">
+                        <form action="{{ url_for('update_application') }}" method="post" enctype="multipart/form-data"
+                            id="editForm">
                             <input type="hidden" name="app_number" value="{{ search_result.app_number }}">
 
                             <div class="row">
@@ -173,8 +174,9 @@
                                                 <br>
                                                 <small class="text-muted">原文件名: {{ attachment[2] }}</small>
                                             </div>
-                                            <button type="button" class="btn btn-sm btn-outline-danger"
-                                                onclick="deleteAttachment({{ attachment[0] }})">
+                                            <button type="button"
+                                                class="btn btn-sm btn-outline-danger delete-attachment-btn"
+                                                data-attachment-id="{{ attachment[0] }}">
                                                 <i class="bi bi-x-circle"></i> 删除
                                             </button>
                                         </div>
@@ -190,9 +192,18 @@
                                 <!-- 上传新附件 -->
                                 <div class="mb-3">
                                     <label for="new_attachments" class="form-label">上传新附件</label>
-                                    <input type="file" class="form-control" id="new_attachments" name="new_attachments"
-                                        multiple accept=".pdf,.jpg,.jpeg,.png,.doc,.docx">
-                                    <div class="form-text">选择文件替换或新增附件，建议文件名包含订单编号，单个文件最大50MB</div>
+                                    <input type="file" class="form-control" id="new_attachments" multiple
+                                        accept=".pdf,.jpg,.jpeg,.png,.doc,.docx">
+                                    <div class="form-text">建议文件名包含发票号码，单个文件最大50MB</div>
+
+                                    <!-- 新附件列表 -->
+                                    <div id="newFilesList" class="mt-3" style="display: none;">
+                                        <label class="form-label">新添加的附件：</label>
+                                        <div id="newFilesContainer" class="border rounded p-3"></div>
+                                    </div>
+
+                                    <!-- 隐藏的表单输入 -->
+                                    <div id="hiddenNewInputs"></div>
                                 </div>
                             </div>
 
@@ -234,26 +245,117 @@
 </div>
 
 <script>
-    function deleteAttachment(attachmentId) {
-        if (confirm('确定要删除这个附件吗？此操作不可撤销。')) {
-            // 创建一个隐藏的表单来提交删除请求
-            const form = document.createElement('form');
-            form.method = 'POST';
-            form.action = '/delete_attachment/' + attachmentId;
+    // 待删除的附件ID列表
+    let deletedAttachments = [];
 
-            // 添加CSRF令牌（如果需要）
-            const csrfToken = document.querySelector('meta[name="csrf-token"]');
-            if (csrfToken) {
-                const csrfInput = document.createElement('input');
-                csrfInput.type = 'hidden';
-                csrfInput.name = 'csrf_token';
-                csrfInput.value = csrfToken.getAttribute('content');
-                form.appendChild(csrfInput);
+    // 标记附件为待删除
+    document.addEventListener('click', function (e) {
+        if (e.target.closest('.delete-attachment-btn')) {
+            const btn = e.target.closest('.delete-attachment-btn');
+            const attachmentId = btn.getAttribute('data-attachment-id');
+            const attachmentDiv = btn.closest('.mb-3');
+
+            if (!deletedAttachments.includes(attachmentId)) {
+                deletedAttachments.push(attachmentId);
+                attachmentDiv.style.opacity = '0.5';
+                attachmentDiv.style.textDecoration = 'line-through';
+                btn.innerHTML = '<i class="bi bi-arrow-counterclockwise"></i> 恢复';
+                btn.classList.remove('btn-outline-danger');
+                btn.classList.add('btn-outline-success');
+            } else {
+                deletedAttachments = deletedAttachments.filter(id => id !== attachmentId);
+                attachmentDiv.style.opacity = '1';
+                attachmentDiv.style.textDecoration = 'none';
+                btn.innerHTML = '<i class="bi bi-x-circle"></i> 删除';
+                btn.classList.remove('btn-outline-success');
+                btn.classList.add('btn-outline-danger');
+            }
+            updateDeletedAttachmentsInput();
+        }
+    });
+
+    // 更新待删除附件的隐藏输入
+    function updateDeletedAttachmentsInput() {
+        let input = document.getElementById('deletedAttachmentsInput');
+        if (!input) {
+            input = document.createElement('input');
+            input.type = 'hidden';
+            input.name = 'deleted_attachments';
+            input.id = 'deletedAttachmentsInput';
+            document.getElementById('editForm').appendChild(input);
+        }
+        input.value = deletedAttachments.join(',');
+    }
+
+    // 新附件管理功能
+    let newFiles = [];
+
+    document.addEventListener('DOMContentLoaded', function () {
+        const newAttachmentsInput = document.getElementById('new_attachments');
+
+        // 文件选择事件
+        newAttachmentsInput.addEventListener('change', function () {
+            Array.from(this.files).forEach(file => {
+                if (!newFiles.some(f => f.name === file.name && f.size === file.size)) {
+                    newFiles.push(file);
+                }
+            });
+            this.value = '';
+            updateNewFilesDisplay();
+        });
+
+        // 删除新文件
+        window.removeNewFile = function (index) {
+            newFiles.splice(index, 1);
+            updateNewFilesDisplay();
+        };
+
+        // 更新新文件显示
+        function updateNewFilesDisplay() {
+            const filesList = document.getElementById('newFilesList');
+            const filesContainer = document.getElementById('newFilesContainer');
+            const hiddenInputs = document.getElementById('hiddenNewInputs');
+
+            // 清空隐藏输入
+            hiddenInputs.innerHTML = '';
+
+            if (newFiles.length === 0) {
+                filesList.style.display = 'none';
+                return;
             }
 
-            document.body.appendChild(form);
-            form.submit();
+            // 显示文件列表
+            filesList.style.display = 'block';
+            filesContainer.innerHTML = '';
+
+            newFiles.forEach((file, index) => {
+                // 创建隐藏输入
+                const input = document.createElement('input');
+                input.type = 'file';
+                input.name = 'new_attachments';
+                input.style.display = 'none';
+                const dt = new DataTransfer();
+                dt.items.add(file);
+                input.files = dt.files;
+                hiddenInputs.appendChild(input);
+
+                // 创建文件显示
+                const div = document.createElement('div');
+                div.className = 'd-flex justify-content-between align-items-center mb-2 p-2 border rounded';
+                div.innerHTML = `
+                    <div>
+                        <i class="bi bi-file-earmark text-success me-2"></i>
+                        <span>${file.name}</span>
+                        <small class="text-muted ms-2">(${(file.size / 1024 / 1024).toFixed(2)} MB)</small>
+                        <span class="badge bg-success ms-2">新增</span>
+                    </div>
+                    <button type="button" class="btn btn-sm btn-outline-danger" onclick="removeNewFile(${index})">
+                        <i class="bi bi-x-circle"></i>
+                    </button>
+                `;
+                filesContainer.appendChild(div);
+            });
         }
-    }
+    });
 </script>
 {% endblock %}
