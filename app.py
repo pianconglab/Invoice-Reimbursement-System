@@ -650,13 +650,16 @@ def download_file(filename):
     if not os.path.exists(file_path):
         flash('文件不存在')
         return redirect(url_for('admin_dashboard'))
-    
+
     with sqlite3.connect('reimbursement.db') as conn:
         c = conn.cursor()
         c.execute('SELECT app_number, original_filename FROM attachments WHERE stored_filename = ?', (filename,))
         attachment_info = c.fetchone()
-    
-    return send_file(file_path)
+
+    # 使用原始文件名作为下载文件名，如果没有则使用存储的文件名
+    download_name = attachment_info[1] if attachment_info and attachment_info[1] else filename
+
+    return send_file(file_path, as_attachment=True, download_name=download_name)
 
 
 
