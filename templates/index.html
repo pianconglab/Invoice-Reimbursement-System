@@ -3,117 +3,432 @@
 {% block title %}报销申请表单 - 骈聪课题组发票报销系统{% endblock %}
 
 {% block content %}
+<style>
+    .form-section {
+        background: #f8f9fa;
+        border-radius: 12px;
+        padding: 1.5rem;
+        margin-bottom: 1.5rem;
+        border-left: 4px solid #0d6efd;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+        transition: all 0.3s ease;
+    }
+
+    .form-section:hover {
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        transform: translateY(-1px);
+    }
+
+    .section-title {
+        color: #0d6efd;
+        font-weight: 600;
+        margin-bottom: 1rem;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .section-title i {
+        font-size: 1.2rem;
+    }
+
+    .form-control,
+    .form-select {
+        border-radius: 8px;
+        border: 2px solid #e9ecef;
+        padding: 0.75rem 1rem;
+        transition: all 0.3s ease;
+    }
+
+    .form-control:focus,
+    .form-select:focus {
+        border-color: #0d6efd;
+        box-shadow: 0 0 0 0.2rem rgba(13, 110, 253, 0.15);
+        transform: translateY(-1px);
+    }
+
+    .form-label {
+        font-weight: 600;
+        color: #495057;
+        margin-bottom: 0.5rem;
+    }
+
+    .btn-primary {
+        background: linear-gradient(135deg, #0d6efd 0%, #0056b3 100%);
+        border: none;
+        border-radius: 10px;
+        padding: 1rem 2rem;
+        font-weight: 600;
+        transition: all 0.3s ease;
+        box-shadow: 0 4px 15px rgba(13, 110, 253, 0.3);
+    }
+
+    .btn-primary:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 20px rgba(13, 110, 253, 0.4);
+    }
+
+    .main-card {
+        border: none;
+        border-radius: 20px;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+        overflow: hidden;
+    }
+
+    .main-card-header {
+        background: linear-gradient(135deg, #0d6efd 0%, #0056b3 100%);
+        color: white;
+        padding: 2rem;
+        text-align: center;
+    }
+
+    .main-card-body {
+        padding: 2rem;
+    }
+
+    .info-alert {
+        background: linear-gradient(135deg, #d1ecf1 0%, #bee5eb 100%);
+        border: none;
+        border-radius: 12px;
+        border-left: 4px solid #17a2b8;
+    }
+
+    .required-star {
+        color: #dc3545;
+        font-weight: bold;
+    }
+
+    .field-description {
+        font-size: 0.875rem;
+        color: #6c757d;
+        margin-top: 0.25rem;
+    }
+
+    /* 动画效果 */
+    @keyframes fadeInUp {
+        from {
+            opacity: 0;
+            transform: translateY(20px);
+        }
+
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    .form-section {
+        animation: fadeInUp 0.6s ease-out;
+    }
+
+    .form-section:nth-child(1) {
+        animation-delay: 0.1s;
+    }
+
+    .form-section:nth-child(2) {
+        animation-delay: 0.2s;
+    }
+
+    .form-section:nth-child(3) {
+        animation-delay: 0.3s;
+    }
+
+    .form-section:nth-child(4) {
+        animation-delay: 0.4s;
+    }
+
+    /* 文件上传区域样式 */
+    #attachments {
+        border: 2px dashed #dee2e6;
+        background: #f8f9fa;
+        transition: all 0.3s ease;
+    }
+
+    #attachments:hover {
+        border-color: #0d6efd;
+        background: #e7f1ff;
+    }
+
+    #attachments:focus {
+        border-color: #0d6efd;
+        background: #e7f1ff;
+        box-shadow: 0 0 0 0.2rem rgba(13, 110, 253, 0.15);
+    }
+
+    /* 提交按钮禁用状态 */
+    .btn-primary:disabled {
+        background: #6c757d;
+        border-color: #6c757d;
+        transform: none;
+        box-shadow: none;
+        cursor: not-allowed;
+    }
+
+    /* 响应式设计优化 */
+    @media (max-width: 768px) {
+        .main-card-header {
+            padding: 1.5rem;
+        }
+
+        .main-card-body {
+            padding: 1.5rem;
+        }
+
+        .form-section {
+            padding: 1rem;
+        }
+
+        .section-title {
+            font-size: 1.1rem;
+        }
+
+        .btn-primary {
+            padding: 0.875rem 1.5rem;
+        }
+    }
+
+    /* 验证消息样式增强 */
+    .alert {
+        border: none;
+        border-radius: 10px;
+    }
+
+    .alert-success {
+        background: linear-gradient(135deg, #d4edda 0%, #c3e6cb 100%);
+        color: #155724;
+    }
+
+    .alert-danger {
+        background: linear-gradient(135deg, #f8d7da 0%, #f5c6cb 100%);
+        color: #721c24;
+    }
+
+    .alert-warning {
+        background: linear-gradient(135deg, #fff3cd 0%, #ffeaa7 100%);
+        color: #856404;
+    }
+</style>
+
 <div class="row justify-content-center">
-    <div class="col-md-8">
-        <div class="card">
-            <div class="card-header">
-                <h4 class="mb-0"><i class="bi bi-receipt"></i> 骈聪课题组发票报销申请表</h4>
+    <div class="col-lg-10 col-xl-8">
+        <div class="card main-card">
+            <div class="main-card-header">
+                <h3 class="mb-2"><i class="bi bi-receipt-cutoff"></i> 骈聪课题组发票报销申请表</h3>
+                <p class="mb-0 opacity-75">请仔细填写以下信息，确保数据准确无误</p>
             </div>
-            <div class="card-body">
-                <div class="alert alert-info mb-4">
-                    <i class="bi bi-info-circle"></i>
-                    <strong>填写说明：</strong><span class="text-danger">*</span> 为必填项，网络购买的商品请填写商品链接
+            <div class="main-card-body">
+                <div class="alert info-alert mb-4">
+                    <div class="d-flex align-items-center">
+                        <i class="bi bi-info-circle-fill me-2" style="font-size: 1.2rem;"></i>
+                        <div>
+                            <strong>填写说明：</strong>
+                            <span class="required-star">*</span> 为必填项，网络购买的商品请填写商品链接
+                        </div>
+                    </div>
                 </div>
+
                 <form action="{{ url_for('submit_application') }}" method="post" enctype="multipart/form-data"
                     id="reimbursementForm">
-                    <div class="row">
-                        <div class="col-md-6 mb-3">
-                            <label for="purchaser" class="form-label">购买人 <span class="text-danger">*</span></label>
-                            <input type="text" class="form-control" id="purchaser" name="purchaser" required>
+                    <!-- 基本信息组 -->
+                    <div class="form-section">
+                        <h5 class="section-title">
+                            <i class="bi bi-person-circle"></i>
+                            基本信息
+                        </h5>
+
+                        <div class="mb-3">
+                            <label for="purchaser" class="form-label">
+                                <i class="bi bi-person me-1"></i>
+                                购买人 <span class="required-star">*</span>
+                            </label>
+                            <input type="text" class="form-control" id="purchaser" name="purchaser"
+                                placeholder="请输入购买人姓名" required>
+                            <div class="field-description">请填写实际购买商品的人员姓名</div>
                         </div>
-                        <div class="col-md-6 mb-3">
-                            <label for="item_name" class="form-label">物品名称 <span class="text-danger">*</span></label>
-                            <input type="text" class="form-control" id="item_name" name="item_name" required>
+
+                        <div class="mb-3">
+                            <label for="item_name" class="form-label">
+                                <i class="bi bi-box me-1"></i>
+                                物品名称 <span class="required-star">*</span>
+                            </label>
+                            <input type="text" class="form-control" id="item_name" name="item_name"
+                                placeholder="请输入物品的具体名称" required>
+                            <div class="field-description">请准确描述所购买物品的名称</div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="purchase_details" class="form-label">
+                                <i class="bi bi-card-text me-1"></i>
+                                商品参数及用途说明
+                            </label>
+                            <textarea class="form-control" id="purchase_details" name="purchase_details" rows="4"
+                                placeholder="请详细描述商品的技术参数、规格型号以及具体用途..."></textarea>
+                            <div class="field-description">请详细说明商品的技术参数、规格型号以及在研究工作中的具体用途</div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="usage_type" class="form-label">
+                                    <i class="bi bi-diagram-3 me-1"></i>
+                                    使用途径 <span class="required-star">*</span>
+                                </label>
+                                <select class="form-select" id="usage_type" name="usage_type" required>
+                                    <option value="">请选择使用途径</option>
+                                    <option value="个人使用">个人使用</option>
+                                    <option value="课题组公用">课题组公用</option>
+                                </select>
+                                <div class="field-description">选择该物品的使用范围</div>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="item_type" class="form-label">
+                                    <i class="bi bi-tags me-1"></i>
+                                    物品类型 <span class="required-star">*</span>
+                                </label>
+                                <select class="form-select" id="item_type" name="item_type" required>
+                                    <option value="">请选择物品类型</option>
+                                    <option value="实物产品">实物产品</option>
+                                    <option value="虚拟产品">虚拟产品</option>
+                                </select>
+                                <div class="field-description">区分实体商品和虚拟服务</div>
+                            </div>
                         </div>
                     </div>
 
-                    <div class="mb-3">
-                        <label for="purchase_details" class="form-label">商品参数及用途说明</label>
-                        <textarea class="form-control" id="purchase_details" name="purchase_details"
-                            rows="3"></textarea>
-                    </div>
+                    <!-- 购买详情组 -->
+                    <div class="form-section">
+                        <h5 class="section-title">
+                            <i class="bi bi-cart-check"></i>
+                            购买详情
+                        </h5>
 
-                    <div class="mb-3">
-                        <label for="product_link" class="form-label">商品链接</label>
-                        <input type="url" class="form-control" id="product_link" name="product_link">
-                    </div>
+                        <div class="mb-3">
+                            <label for="product_link" class="form-label">
+                                <i class="bi bi-link-45deg me-1"></i>
+                                商品链接
+                            </label>
+                            <input type="url" class="form-control" id="product_link" name="product_link"
+                                placeholder="https://example.com/product">
+                            <div class="field-description">网络购买的商品请填写商品链接，便于核实商品信息</div>
+                        </div>
 
-                    <div class="row">
-                        <div class="col-md-6 mb-3">
-                            <label for="usage_type" class="form-label">使用途径 <span class="text-danger">*</span></label>
-                            <select class="form-select" id="usage_type" name="usage_type" required>
-                                <option value="">请选择</option>
-                                <option value="个人使用">个人使用</option>
-                                <option value="课题组公用">课题组公用</option>
-                            </select>
-                        </div>
-                        <div class="col-md-6 mb-3">
-                            <label for="item_type" class="form-label">物品类型 <span class="text-danger">*</span></label>
-                            <select class="form-select" id="item_type" name="item_type" required>
-                                <option value="">请选择</option>
-                                <option value="实物产品">实物产品</option>
-                                <option value="虚拟产品">虚拟产品</option>
-                            </select>
-                        </div>
-                    </div>
-
-                    <div class="row">
-                        <div class="col-md-4 mb-3">
-                            <label for="quantity" class="form-label">数量 <span class="text-danger">*</span></label>
-                            <input type="number" class="form-control" id="quantity" name="quantity" min="1" required>
-                        </div>
-                        <div class="col-md-4 mb-3">
-                            <label for="purchase_time" class="form-label">购买时间 <span
-                                    class="text-danger">*</span></label>
-                            <input type="date" class="form-control" id="purchase_time" name="purchase_time" required>
-                        </div>
-                        <div class="col-md-4 mb-3">
-                            <label for="invoice_date" class="form-label">开票日期 <span class="text-danger">*</span></label>
-                            <input type="date" class="form-control" id="invoice_date" name="invoice_date" required>
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="quantity" class="form-label">
+                                    <i class="bi bi-123 me-1"></i>
+                                    数量 <span class="required-star">*</span>
+                                </label>
+                                <input type="number" class="form-control" id="quantity" name="quantity" min="1"
+                                    placeholder="1" required>
+                                <div class="field-description">请输入购买的商品数量</div>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="purchase_time" class="form-label">
+                                    <i class="bi bi-calendar-event me-1"></i>
+                                    购买时间 <span class="required-star">*</span>
+                                </label>
+                                <input type="date" class="form-control" id="purchase_time" name="purchase_time"
+                                    required>
+                                <div class="field-description">选择实际购买商品的日期</div>
+                            </div>
                         </div>
                     </div>
 
-                    <div class="row">
-                        <div class="col-md-6 mb-3">
-                            <label for="invoice_number" class="form-label">发票号码 <span
-                                    class="text-danger">*</span></label>
-                            <input type="text" class="form-control" id="invoice_number" name="invoice_number" required>
+                    <!-- 发票信息组 -->
+                    <div class="form-section">
+                        <h5 class="section-title">
+                            <i class="bi bi-receipt"></i>
+                            发票信息
+                        </h5>
+
+                        <div class="mb-3">
+                            <label for="invoice_number" class="form-label">
+                                <i class="bi bi-hash me-1"></i>
+                                发票号码 <span class="required-star">*</span>
+                            </label>
+                            <input type="text" class="form-control" id="invoice_number" name="invoice_number"
+                                placeholder="请输入发票号码" required>
+                            <div class="field-description">请准确填写发票上的号码，系统会自动检查是否重复</div>
                         </div>
-                        <div class="col-md-6 mb-3">
-                            <label for="invoice_amount" class="form-label">发票金额 <span
-                                    class="text-danger">*</span></label>
-                            <input type="number" class="form-control" id="invoice_amount" name="invoice_amount"
-                                step="0.01" min="0" required>
+
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="invoice_amount" class="form-label">
+                                    <i class="bi bi-currency-yen me-1"></i>
+                                    发票金额 <span class="required-star">*</span>
+                                </label>
+                                <input type="number" class="form-control" id="invoice_amount" name="invoice_amount"
+                                    step="0.01" min="0" placeholder="0.00" required>
+                                <div class="field-description">请输入发票上的金额（元）</div>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="invoice_date" class="form-label">
+                                    <i class="bi bi-calendar-check me-1"></i>
+                                    开票日期 <span class="required-star">*</span>
+                                </label>
+                                <input type="date" class="form-control" id="invoice_date" name="invoice_date" required>
+                                <div class="field-description">选择发票上的开票日期</div>
+                            </div>
                         </div>
                     </div>
 
-                    <div class="mb-3">
-                        <label for="attachments" class="form-label">上传发票及付款记录截图 <span
-                                class="text-danger">*</span></label>
-                        <input type="file" class="form-control" id="attachments" multiple
-                            accept=".pdf,.jpg,.jpeg,.png,.doc,.docx">
-                        <div class="form-text">
-                            <strong
-                                class="text-danger">重要：</strong>请将文件名修改为"<strong>发票号码.扩展名</strong>"的格式（如：123456.pdf），否则不予通过。单个文件最大50MB
+                    <!-- 附件上传组 -->
+                    <div class="form-section">
+                        <h5 class="section-title">
+                            <i class="bi bi-cloud-upload"></i>
+                            附件上传
+                        </h5>
+
+                        <div class="mb-3">
+                            <label for="attachments" class="form-label">
+                                <i class="bi bi-paperclip me-1"></i>
+                                上传发票及付款记录截图 <span class="required-star">*</span>
+                            </label>
+                            <input type="file" class="form-control" id="attachments" multiple
+                                accept=".pdf,.jpg,.jpeg,.png,.doc,.docx">
+                            <div class="alert alert-warning mt-3 mb-0">
+                                <div class="d-flex align-items-start">
+                                    <i class="bi bi-exclamation-triangle-fill me-2 mt-1"></i>
+                                    <div>
+                                        <strong>重要提醒：</strong><br>
+                                        <small>
+                                            • 请将文件名修改为"<strong
+                                                class="text-danger">发票号码.扩展名</strong>"的格式（如：123456.pdf）<br>
+                                            • 支持格式：PDF、JPG、JPEG、PNG<br>
+                                            • 只允许上传发票及付款记录截图，请勿上传无关文件，否则可能被拒绝报销
+                                        </small>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
 
                         <!-- 已选择的附件列表 -->
                         <div id="filesList" class="mt-3" style="display: none;">
-                            <label class="form-label">已选择的附件：</label>
-                            <div id="filesContainer" class="border rounded p-3"></div>
+                            <label class="form-label">
+                                <i class="bi bi-files me-1"></i>
+                                已选择的附件：
+                            </label>
+                            <div id="filesContainer" class="border rounded p-3 bg-light"></div>
                         </div>
 
                         <!-- 文件名校验提示区域 -->
-                        <div id="validationMessage" class="mt-2" style="display: none;"></div>
+                        <div id="validationMessage" class="mt-3" style="display: none;"></div>
 
                         <!-- 隐藏的表单输入 -->
                         <div id="hiddenInputs"></div>
                     </div>
 
-                    <div class="d-grid">
-                        <button type="submit" class="btn btn-primary btn-lg" id="submitBtn" disabled>
-                            <i class="bi bi-send"></i> 提交申请
+                    <!-- 提交按钮 -->
+                    <div class="text-center mt-4">
+                        <button type="submit" class="btn btn-primary btn-lg px-5 py-3" id="submitBtn" disabled>
+                            <i class="bi bi-send-fill me-2"></i>
+                            提交申请
                         </button>
+                        <div class="mt-3">
+                            <small class="text-muted">
+                                <i class="bi bi-info-circle me-1"></i>
+                                提交前请仔细检查所有信息，确保准确无误
+                            </small>
+                        </div>
                     </div>
                 </form>
             </div>
@@ -216,17 +531,43 @@
 
                 // 创建文件显示
                 const div = document.createElement('div');
-                div.className = 'd-flex justify-content-between align-items-center mb-2 p-2 border rounded';
+                div.className = 'd-flex justify-content-between align-items-center mb-2 p-3 border rounded bg-white shadow-sm';
+                div.style.transition = 'all 0.3s ease';
+
+                // 根据文件类型选择图标
+                let fileIcon = 'bi-file-earmark';
+                const ext = file.name.split('.').pop().toLowerCase();
+                if (['jpg', 'jpeg', 'png'].includes(ext)) {
+                    fileIcon = 'bi-file-earmark-image text-success';
+                } else if (ext === 'pdf') {
+                    fileIcon = 'bi-file-earmark-pdf text-danger';
+                } else if (['doc', 'docx'].includes(ext)) {
+                    fileIcon = 'bi-file-earmark-word text-primary';
+                }
+
                 div.innerHTML = `
-                <div>
-                    <i class="bi bi-file-earmark text-primary me-2"></i>
-                    <span>${file.name}</span>
-                    <small class="text-muted ms-2">(${(file.size / 1024 / 1024).toFixed(2)} MB)</small>
+                <div class="d-flex align-items-center">
+                    <i class="bi ${fileIcon} me-3" style="font-size: 1.5rem;"></i>
+                    <div>
+                        <div class="fw-semibold">${file.name}</div>
+                        <small class="text-muted">${(file.size / 1024 / 1024).toFixed(2)} MB</small>
+                    </div>
                 </div>
-                <button type="button" class="btn btn-sm btn-outline-danger" onclick="removeFile(${index})">
-                    <i class="bi bi-x-circle"></i>
+                <button type="button" class="btn btn-sm btn-outline-danger rounded-pill" onclick="removeFile(${index})" title="删除文件">
+                    <i class="bi bi-x-lg"></i>
                 </button>
             `;
+
+                // 添加悬停效果
+                div.addEventListener('mouseenter', function () {
+                    this.style.transform = 'translateY(-2px)';
+                    this.style.boxShadow = '0 4px 12px rgba(0,0,0,0.15)';
+                });
+                div.addEventListener('mouseleave', function () {
+                    this.style.transform = 'translateY(0)';
+                    this.style.boxShadow = '0 1px 3px rgba(0,0,0,0.1)';
+                });
+
                 filesContainer.appendChild(div);
             });
 
