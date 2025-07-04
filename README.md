@@ -32,21 +32,17 @@ python app.py
 1. 构建镜像：
 
 ```bash
-docker build -t invoice-reimbursement-system .
-```
-
-2. 运行系统：
-
-```bash
-docker run -d \
+#!/bin/bash
+sudo docker build -t invoice-app:latest .
+sudo docker rm -f invoice-app
+sudo docker run -d \
+  --name invoice-app \
   -p 5000:5000 \
-  -e GUNICORN_WORKERS=2 \
   -v "$(pwd)/uploads:/app/uploads" \
   -v "$(pwd)/logs:/app/logs" \
   -v "$(pwd)/reimbursement.db:/app/reimbursement.db" \
-  --name reimbursement-app \
-  --restart=always \
-  invoice-reimbursement-system:latest
+  --restart unless-stopped \
+  invoice-app:latest
 ```
 
 ## 访问系统
