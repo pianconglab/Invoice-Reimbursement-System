@@ -3,6 +3,13 @@
 {% block title %}管理后台 - 骈聪课题组发票报销系统{% endblock %}
 
 {% block scripts %}
+<!-- Flatpickr CSS -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/themes/material_blue.css">
+
+<!-- Flatpickr JS -->
+<script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+<script src="https://cdn.jsdelivr.net/npm/flatpickr/dist/l10n/zh.js"></script>
 <style>
     .sortable {
         cursor: pointer;
@@ -139,15 +146,21 @@
     }
 
     .form-check-input:focus {
-        border-color: #86b7fe;
-        outline: 0;
-        box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.25);
+        border-color: #dee2e6 !important;
+        outline: none !important;
+        box-shadow: none !important;
     }
 
     .form-check-input:indeterminate {
         background-color: #0d6efd;
         border-color: #0d6efd;
         background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20'%3e%3cpath fill='none' stroke='%23ffffff' stroke-linecap='round' stroke-linejoin='round' stroke-width='3' d='M6 10h8'/%3e%3c/svg%3e");
+    }
+
+    .form-check-input:indeterminate:focus {
+        border-color: #dee2e6 !important;
+        box-shadow: none !important;
+        outline: none !important;
     }
 
     /* 批量操作工具栏样式 */
@@ -188,6 +201,219 @@
     .card-header.bg-light {
         background-color: #f8f9fa !important;
         border-bottom: 1px solid #dee2e6;
+    }
+
+    /* 全局表单元素简化样式 */
+    .form-control:focus,
+    .form-select:focus,
+    .btn:focus,
+    .form-check-input:focus {
+        border-color: #dee2e6 !important;
+        box-shadow: none !important;
+        outline: none !important;
+    }
+
+    /* 移除输入框的复杂焦点效果 */
+    input[type="text"]:focus,
+    input[type="date"]:focus,
+    input[type="hidden"]:focus,
+    textarea:focus {
+        border-color: #dee2e6 !important;
+        box-shadow: none !important;
+        outline: none !important;
+    }
+
+    /* 移除下拉选择框的复杂焦点效果 */
+    select:focus,
+    .form-select:focus {
+        border-color: #dee2e6 !important;
+        box-shadow: none !important;
+        outline: none !important;
+    }
+
+    /* 简化悬停状态 */
+    .form-control:hover,
+    .form-select:hover {
+        border-color: #ced4da;
+        transition: none;
+    }
+
+    .btn:hover {
+        transform: none;
+        transition: none;
+    }
+
+    /* 移除按钮的复杂悬停效果 */
+    .btn-primary:hover {
+        background-color: #0b5ed7;
+        border-color: #0a58ca;
+        box-shadow: none;
+    }
+
+    .btn-secondary:hover,
+    .btn-outline-secondary:hover {
+        background-color: #5c636a;
+        border-color: #565e64;
+        box-shadow: none;
+    }
+
+    .btn-success:hover {
+        background-color: #157347;
+        border-color: #146c43;
+        box-shadow: none;
+    }
+
+    .btn-warning:hover {
+        background-color: #e0a800;
+        border-color: #d39e00;
+        box-shadow: none;
+    }
+
+    .btn-danger:hover {
+        background-color: #bb2d3b;
+        border-color: #b02a37;
+        box-shadow: none;
+    }
+
+    /* 移除按钮的焦点效果 */
+    .btn:focus,
+    .btn:active,
+    .btn.active {
+        box-shadow: none !important;
+        outline: none !important;
+    }
+
+    /* 简化批量操作按钮样式 */
+    .btn-group .btn:focus {
+        box-shadow: none !important;
+        outline: none !important;
+        z-index: auto;
+    }
+
+    /* 移除链接按钮的复杂效果 */
+    .btn-link:focus {
+        box-shadow: none !important;
+        outline: none !important;
+        text-decoration: none;
+    }
+
+    /* 日期范围选择器样式优化 */
+    .date-range-container {
+        position: relative;
+    }
+
+    .date-range-container .form-select {
+        border-radius: 0.375rem 0.375rem 0 0;
+        border-bottom: 1px solid #dee2e6;
+        margin-bottom: 0;
+    }
+
+    .date-range-container .form-select:focus {
+        border-color: #dee2e6;
+        box-shadow: none;
+        outline: none;
+    }
+
+    .date-range-container .input-group {
+        border-radius: 0 0 0.375rem 0.375rem;
+        margin-top: -1px;
+    }
+
+    .date-range-container .input-group .form-control {
+        border-top: 1px solid #dee2e6;
+        background-color: #f8f9fa;
+        cursor: pointer;
+        border-radius: 0;
+    }
+
+    .date-range-container .input-group .form-control:focus {
+        background-color: #fff;
+        border-color: #dee2e6 !important;
+        box-shadow: none !important;
+        outline: none !important;
+    }
+
+    .date-range-container .input-group-text {
+        border-top: 1px solid #dee2e6;
+        background-color: #e9ecef;
+        color: #6c757d;
+        border-radius: 0;
+    }
+
+    .date-range-container .input-group-text:focus {
+        box-shadow: none !important;
+        outline: none !important;
+    }
+
+    .date-range-container .input-group .btn {
+        border-top: 1px solid #dee2e6;
+        border-radius: 0 0 0.375rem 0;
+    }
+
+    .date-range-container .input-group .btn:focus {
+        box-shadow: none !important;
+        outline: none !important;
+        border-color: #dee2e6 !important;
+    }
+
+    .date-range-container .input-group .btn:hover {
+        box-shadow: none;
+        transform: none;
+    }
+
+    /* 确保第一个元素的上边框圆角 */
+    .date-range-container .form-select:first-child {
+        border-radius: 0.375rem 0.375rem 0 0;
+    }
+
+    /* 确保最后一个元素的下边框圆角 */
+    .date-range-container .input-group:last-child .form-control {
+        border-radius: 0 0 0 0.375rem;
+    }
+
+    .date-range-container .input-group:last-child .btn:last-child {
+        border-radius: 0 0 0.375rem 0;
+    }
+
+    /* Flatpickr主题定制 */
+    .flatpickr-calendar {
+        box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
+        border: 1px solid #dee2e6;
+        border-radius: 0.375rem;
+    }
+
+    .flatpickr-day.selected,
+    .flatpickr-day.startRange,
+    .flatpickr-day.endRange {
+        background: #0d6efd;
+        border-color: #0d6efd;
+    }
+
+    .flatpickr-day.inRange {
+        background: rgba(13, 110, 253, 0.1);
+        border-color: rgba(13, 110, 253, 0.1);
+        color: #0d6efd;
+    }
+
+    .flatpickr-day:hover {
+        background: rgba(13, 110, 253, 0.1);
+        border-color: rgba(13, 110, 253, 0.1);
+    }
+
+    /* 预设选项样式 */
+    .date-range-container .form-select option {
+        padding: 0.5rem;
+    }
+
+    /* 响应式优化 */
+    @media (max-width: 768px) {
+        .date-range-container .form-select {
+            font-size: 0.875rem;
+        }
+
+        .date-range-container .input-group .form-control {
+            font-size: 0.875rem;
+        }
     }
 
     /* 响应式表格优化 */
@@ -290,34 +516,212 @@
         window.location.href = url.toString();
     }
 
-    // 高级筛选折叠控制
-    document.addEventListener('DOMContentLoaded', function () {
-        const advancedFilters = document.getElementById('advancedFilters');
-        const toggleIcon = document.getElementById('advancedToggleIcon');
 
-        // 检查是否有高级筛选参数，如果有则展开
-        const hasAdvancedFilters = '{{ request.args.get("purchase_date_start", "") }}' ||
-            '{{ request.args.get("purchase_date_end", "") }}' ||
-            '{{ request.args.get("invoice_date_start", "") }}' ||
-            '{{ request.args.get("invoice_date_end", "") }}';
 
-        if (hasAdvancedFilters) {
-            advancedFilters.classList.add('show');
-            toggleIcon.classList.remove('bi-chevron-right');
-            toggleIcon.classList.add('bi-chevron-down');
+    // 日期范围预设选项处理
+    function getDateRange(preset) {
+        const today = new Date();
+        const startDate = new Date();
+        const endDate = new Date();
+
+        switch (preset) {
+            case 'today':
+                startDate.setDate(today.getDate());
+                endDate.setDate(today.getDate());
+                break;
+            case 'yesterday':
+                startDate.setDate(today.getDate() - 1);
+                endDate.setDate(today.getDate() - 1);
+                break;
+            case 'last7days':
+                startDate.setDate(today.getDate() - 6);
+                endDate.setDate(today.getDate());
+                break;
+            case 'last30days':
+                startDate.setDate(today.getDate() - 29);
+                endDate.setDate(today.getDate());
+                break;
+            case 'thisMonth':
+                startDate.setDate(1);
+                endDate.setMonth(today.getMonth() + 1, 0);
+                break;
+            case 'lastMonth':
+                startDate.setMonth(today.getMonth() - 1, 1);
+                endDate.setMonth(today.getMonth(), 0);
+                break;
+            case 'last3months':
+                startDate.setMonth(today.getMonth() - 2, 1);
+                endDate.setDate(today.getDate());
+                break;
+            default:
+                return null;
         }
 
-        // 监听折叠状态变化
-        advancedFilters.addEventListener('show.bs.collapse', function () {
-            toggleIcon.classList.remove('bi-chevron-right');
-            toggleIcon.classList.add('bi-chevron-down');
+        return {
+            start: startDate.toISOString().split('T')[0],
+            end: endDate.toISOString().split('T')[0]
+        };
+    }
+
+    function formatDateRange(startDate, endDate) {
+        if (!startDate || !endDate) return '';
+
+        const start = new Date(startDate);
+        const end = new Date(endDate);
+
+        const formatDate = (date) => {
+            return date.toLocaleDateString('zh-CN', {
+                year: 'numeric',
+                month: '2-digit',
+                day: '2-digit'
+            });
+        };
+
+        if (startDate === endDate) {
+            return formatDate(start);
+        } else {
+            return `${formatDate(start)} 至 ${formatDate(end)}`;
+        }
+    }
+
+    function handleDatePresetChange(type) {
+        const presetSelect = document.getElementById(`${type}DatePreset`);
+        const rangeInput = document.getElementById(`${type}DateRange`);
+        const startInput = document.getElementById(`${type}DateStart`);
+        const endInput = document.getElementById(`${type}DateEnd`);
+
+        const preset = presetSelect.value;
+
+        if (preset === 'custom') {
+            // 显示自定义日期选择器
+            if (window[`${type}DatePicker`]) {
+                window[`${type}DatePicker`].open();
+            }
+        } else if (preset) {
+            // 使用预设日期范围
+            const dateRange = getDateRange(preset);
+            if (dateRange) {
+                startInput.value = dateRange.start;
+                endInput.value = dateRange.end;
+                rangeInput.value = formatDateRange(dateRange.start, dateRange.end);
+            }
+        } else {
+            // 清空选择
+            startInput.value = '';
+            endInput.value = '';
+            rangeInput.value = '';
+        }
+    }
+
+    // 初始化Flatpickr日期范围选择器
+    document.addEventListener('DOMContentLoaded', function () {
+        // 购买日期范围选择器
+        window.purchaseDatePicker = flatpickr("#purchaseDateRange", {
+            mode: "range",
+            dateFormat: "Y-m-d",
+            locale: "zh",
+            allowInput: false,
+            clickOpens: false,
+            onChange: function (selectedDates, dateStr, instance) {
+                if (selectedDates.length === 2) {
+                    const startDate = selectedDates[0].toISOString().split('T')[0];
+                    const endDate = selectedDates[1].toISOString().split('T')[0];
+
+                    document.getElementById('purchaseDateStart').value = startDate;
+                    document.getElementById('purchaseDateEnd').value = endDate;
+                    document.getElementById('purchaseDateRange').value = formatDateRange(startDate, endDate);
+
+                    // 重置预设选择为自定义
+                    document.getElementById('purchaseDatePreset').value = 'custom';
+
+                    instance.close();
+                }
+            },
+            onClose: function (selectedDates, dateStr, instance) {
+                if (selectedDates.length === 0) {
+                    // 如果没有选择日期，清空相关字段
+                    document.getElementById('purchaseDateStart').value = '';
+                    document.getElementById('purchaseDateEnd').value = '';
+                    document.getElementById('purchaseDateRange').value = '';
+                    document.getElementById('purchaseDatePreset').value = '';
+                }
+            }
         });
 
-        advancedFilters.addEventListener('hide.bs.collapse', function () {
-            toggleIcon.classList.remove('bi-chevron-down');
-            toggleIcon.classList.add('bi-chevron-right');
+        // 开票日期范围选择器
+        window.invoiceDatePicker = flatpickr("#invoiceDateRange", {
+            mode: "range",
+            dateFormat: "Y-m-d",
+            locale: "zh",
+            allowInput: false,
+            clickOpens: false,
+            onChange: function (selectedDates, dateStr, instance) {
+                if (selectedDates.length === 2) {
+                    const startDate = selectedDates[0].toISOString().split('T')[0];
+                    const endDate = selectedDates[1].toISOString().split('T')[0];
+
+                    document.getElementById('invoiceDateStart').value = startDate;
+                    document.getElementById('invoiceDateEnd').value = endDate;
+                    document.getElementById('invoiceDateRange').value = formatDateRange(startDate, endDate);
+
+                    // 重置预设选择为自定义
+                    document.getElementById('invoiceDatePreset').value = 'custom';
+
+                    instance.close();
+                }
+            },
+            onClose: function (selectedDates, dateStr, instance) {
+                if (selectedDates.length === 0) {
+                    // 如果没有选择日期，清空相关字段
+                    document.getElementById('invoiceDateStart').value = '';
+                    document.getElementById('invoiceDateEnd').value = '';
+                    document.getElementById('invoiceDateRange').value = '';
+                    document.getElementById('invoiceDatePreset').value = '';
+                }
+            }
         });
+
+        // 初始化现有的日期值
+        initializeDateRanges();
     });
+
+    function initializeDateRanges() {
+        // 初始化购买日期范围
+        const purchaseStart = document.getElementById('purchaseDateStart').value;
+        const purchaseEnd = document.getElementById('purchaseDateEnd').value;
+        if (purchaseStart && purchaseEnd) {
+            document.getElementById('purchaseDateRange').value = formatDateRange(purchaseStart, purchaseEnd);
+            window.purchaseDatePicker.setDate([purchaseStart, purchaseEnd]);
+        }
+
+        // 初始化开票日期范围
+        const invoiceStart = document.getElementById('invoiceDateStart').value;
+        const invoiceEnd = document.getElementById('invoiceDateEnd').value;
+        if (invoiceStart && invoiceEnd) {
+            document.getElementById('invoiceDateRange').value = formatDateRange(invoiceStart, invoiceEnd);
+            window.invoiceDatePicker.setDate([invoiceStart, invoiceEnd]);
+        }
+    }
+
+    // 清空日期范围
+    function clearDateRange(type) {
+        const presetSelect = document.getElementById(`${type}DatePreset`);
+        const rangeInput = document.getElementById(`${type}DateRange`);
+        const startInput = document.getElementById(`${type}DateStart`);
+        const endInput = document.getElementById(`${type}DateEnd`);
+        const datePicker = window[`${type}DatePicker`];
+
+        // 清空所有相关字段
+        presetSelect.value = '';
+        rangeInput.value = '';
+        startInput.value = '';
+        endInput.value = '';
+
+        // 清空日期选择器
+        if (datePicker) {
+            datePicker.clear();
+        }
+    }
 
     // 批量选择功能
     function toggleSelectAll() {
@@ -606,48 +1010,81 @@
                     </div>
                 </div>
 
-                <!-- 高级筛选条件 - 可折叠 -->
-                <div class="border-top pt-3">
-                    <div class="d-flex align-items-center mb-3">
-                        <button type="button" class="btn btn-link p-0 text-decoration-none" data-bs-toggle="collapse"
-                            data-bs-target="#advancedFilters" aria-expanded="false" aria-controls="advancedFilters">
-                            <i class="bi bi-chevron-right" id="advancedToggleIcon"></i>
-                            <span class="ms-1 fw-semibold text-muted">高级筛选</span>
-                        </button>
-                        <small class="text-muted ms-2">按日期范围筛选</small>
+                <!-- 日期范围筛选 -->
+                <div class="row g-3 mb-3">
+                    <div class="col-md-6">
+                        <label class="form-label fw-semibold">
+                            <i class="bi bi-calendar-event text-success"></i> 购买日期范围
+                        </label>
+                        <div class="date-range-container">
+                            <select class="form-select mb-2" id="purchaseDatePreset"
+                                onchange="handleDatePresetChange('purchase')">
+                                <option value="">选择时间范围</option>
+                                <option value="today">今天</option>
+                                <option value="yesterday">昨天</option>
+                                <option value="last7days">最近7天</option>
+                                <option value="last30days">最近30天</option>
+                                <option value="thisMonth">本月</option>
+                                <option value="lastMonth">上月</option>
+                                <option value="last3months">最近3个月</option>
+                                <option value="custom">自定义范围</option>
+                            </select>
+                            <div class="input-group">
+                                <span class="input-group-text bg-light">
+                                    <i class="bi bi-calendar-range"></i>
+                                </span>
+                                <input type="text" class="form-control" id="purchaseDateRange" placeholder="选择日期范围"
+                                    readonly>
+                                <button class="btn btn-outline-secondary" type="button"
+                                    onclick="clearDateRange('purchase')" title="清空日期">
+                                    <i class="bi bi-x"></i>
+                                </button>
+                            </div>
+                            <!-- 隐藏字段用于表单提交 -->
+                            <input type="hidden" name="purchase_date_start" id="purchaseDateStart"
+                                value="{{ request.args.get('purchase_date_start', '') }}">
+                            <input type="hidden" name="purchase_date_end" id="purchaseDateEnd"
+                                value="{{ request.args.get('purchase_date_end', '') }}">
+                        </div>
                     </div>
-
-                    <div class="collapse" id="advancedFilters">
-                        <div class="row g-3">
-                            <div class="col-md-6">
-                                <label class="form-label fw-semibold">
-                                    <i class="bi bi-calendar-event text-success"></i> 购买日期范围
-                                </label>
-                                <div class="input-group">
-                                    <span class="input-group-text bg-light">从</span>
-                                    <input type="date" class="form-control" name="purchase_date_start"
-                                        value="{{ request.args.get('purchase_date_start', '') }}">
-                                    <span class="input-group-text bg-light">至</span>
-                                    <input type="date" class="form-control" name="purchase_date_end"
-                                        value="{{ request.args.get('purchase_date_end', '') }}">
-                                </div>
+                    <div class="col-md-6">
+                        <label class="form-label fw-semibold">
+                            <i class="bi bi-receipt text-danger"></i> 开票日期范围
+                        </label>
+                        <div class="date-range-container">
+                            <select class="form-select mb-2" id="invoiceDatePreset"
+                                onchange="handleDatePresetChange('invoice')">
+                                <option value="">选择时间范围</option>
+                                <option value="today">今天</option>
+                                <option value="yesterday">昨天</option>
+                                <option value="last7days">最近7天</option>
+                                <option value="last30days">最近30天</option>
+                                <option value="thisMonth">本月</option>
+                                <option value="lastMonth">上月</option>
+                                <option value="last3months">最近3个月</option>
+                                <option value="custom">自定义范围</option>
+                            </select>
+                            <div class="input-group">
+                                <span class="input-group-text bg-light">
+                                    <i class="bi bi-calendar-range"></i>
+                                </span>
+                                <input type="text" class="form-control" id="invoiceDateRange" placeholder="选择日期范围"
+                                    readonly>
+                                <button class="btn btn-outline-secondary" type="button"
+                                    onclick="clearDateRange('invoice')" title="清空日期">
+                                    <i class="bi bi-x"></i>
+                                </button>
                             </div>
-                            <div class="col-md-6">
-                                <label class="form-label fw-semibold">
-                                    <i class="bi bi-receipt text-danger"></i> 开票日期范围
-                                </label>
-                                <div class="input-group">
-                                    <span class="input-group-text bg-light">从</span>
-                                    <input type="date" class="form-control" name="invoice_date_start"
-                                        value="{{ request.args.get('invoice_date_start', '') }}">
-                                    <span class="input-group-text bg-light">至</span>
-                                    <input type="date" class="form-control" name="invoice_date_end"
-                                        value="{{ request.args.get('invoice_date_end', '') }}">
-                                </div>
-                            </div>
+                            <!-- 隐藏字段用于表单提交 -->
+                            <input type="hidden" name="invoice_date_start" id="invoiceDateStart"
+                                value="{{ request.args.get('invoice_date_start', '') }}">
+                            <input type="hidden" name="invoice_date_end" id="invoiceDateEnd"
+                                value="{{ request.args.get('invoice_date_end', '') }}">
                         </div>
                     </div>
                 </div>
+
+
 
                 <!-- 隐藏字段保持排序状态 -->
                 <input type="hidden" name="sort" value="{{ request.args.get('sort', '') }}">
