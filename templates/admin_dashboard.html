@@ -51,13 +51,13 @@
     }
 
     .table-auto .col-app-number {
-        min-width: 100px;
-        max-width: 120px;
+        min-width: 80px;
+        max-width: 100px;
     }
 
     .table-auto .col-purchaser {
-        min-width: 30px;
-        max-width: 70px;
+        min-width: 60px;
+        max-width: 80px;
     }
 
     .table-auto .col-item-name {
@@ -91,11 +91,140 @@
         white-space: normal;
     }
 
+    /* 复选框列样式优化 */
+    .table-auto .col-checkbox {
+        width: 75px;
+        min-width: 75px;
+        max-width: 75px;
+        padding: 0.5rem 0.75rem;
+        text-align: center;
+    }
+
+    .table-auto .col-checkbox .form-check {
+        margin-bottom: 0;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+    }
+
     /* 容器宽度调整 */
     .container-fluid {
         max-width: 95%;
         padding-left: 1rem;
         padding-right: 1rem;
+    }
+
+    /* 批量选择相关样式 */
+    .row-checkbox:checked+label,
+    .row-checkbox:checked {
+        background-color: #e3f2fd;
+    }
+
+    .table-auto tbody tr:has(.row-checkbox:checked) {
+        background-color: #e3f2fd !important;
+    }
+
+    .table-auto tbody tr:has(.row-checkbox:checked):hover {
+        background-color: #bbdefb !important;
+    }
+
+    /* 复选框样式优化 */
+    .form-check-input:checked {
+        background-color: #0d6efd;
+        border-color: #0d6efd;
+    }
+
+    .form-check-input:checked::after {
+        background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20'%3e%3cpath fill='none' stroke='%23ffffff' stroke-linecap='round' stroke-linejoin='round' stroke-width='3' d='m6 10 3 3 6-6'/%3e%3c/svg%3e");
+    }
+
+    .form-check-input:focus {
+        border-color: #86b7fe;
+        outline: 0;
+        box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.25);
+    }
+
+    .form-check-input:indeterminate {
+        background-color: #0d6efd;
+        border-color: #0d6efd;
+        background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20'%3e%3cpath fill='none' stroke='%23ffffff' stroke-linecap='round' stroke-linejoin='round' stroke-width='3' d='M6 10h8'/%3e%3c/svg%3e");
+    }
+
+    /* 批量操作工具栏样式 */
+    #batchToolbar {
+        border-left: 4px solid #007bff;
+        background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+    }
+
+    /* 选择信息样式 */
+    #selectionInfo {
+        background-color: #d1ecf1;
+        color: #0c5460;
+        padding: 0.25rem 0.5rem;
+        border-radius: 0.25rem;
+        font-weight: 500;
+    }
+
+    /* Toast容器样式优化 */
+    .toast-container {
+        z-index: 9999;
+    }
+
+    .toast {
+        min-width: 300px;
+    }
+
+    /* 高级筛选折叠按钮样式 */
+    .btn-link:hover {
+        text-decoration: none !important;
+    }
+
+    /* 筛选卡片样式优化 */
+    .card.shadow-sm {
+        box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075) !important;
+        border: 1px solid rgba(0, 0, 0, 0.125);
+    }
+
+    .card-header.bg-light {
+        background-color: #f8f9fa !important;
+        border-bottom: 1px solid #dee2e6;
+    }
+
+    /* 响应式表格优化 */
+    @media (max-width: 768px) {
+        .table-auto .col-checkbox {
+            width: 60px;
+            min-width: 60px;
+            max-width: 60px;
+        }
+
+        .table-auto .col-app-number {
+            min-width: 70px;
+            max-width: 90px;
+        }
+
+        .table-auto .col-purchaser {
+            min-width: 50px;
+            max-width: 70px;
+        }
+
+        .table-auto .col-item-name {
+            min-width: 120px;
+            max-width: 200px;
+        }
+    }
+
+    @media (max-width: 576px) {
+        .table-auto .col-checkbox {
+            width: 50px;
+            min-width: 50px;
+            max-width: 50px;
+        }
+
+        .table-auto .col-app-number {
+            min-width: 60px;
+            max-width: 80px;
+        }
     }
 </style>
 
@@ -160,6 +289,242 @@
         url.searchParams.set('page', 1); // 重置到第一页
         window.location.href = url.toString();
     }
+
+    // 高级筛选折叠控制
+    document.addEventListener('DOMContentLoaded', function () {
+        const advancedFilters = document.getElementById('advancedFilters');
+        const toggleIcon = document.getElementById('advancedToggleIcon');
+
+        // 检查是否有高级筛选参数，如果有则展开
+        const hasAdvancedFilters = '{{ request.args.get("purchase_date_start", "") }}' ||
+            '{{ request.args.get("purchase_date_end", "") }}' ||
+            '{{ request.args.get("invoice_date_start", "") }}' ||
+            '{{ request.args.get("invoice_date_end", "") }}';
+
+        if (hasAdvancedFilters) {
+            advancedFilters.classList.add('show');
+            toggleIcon.classList.remove('bi-chevron-right');
+            toggleIcon.classList.add('bi-chevron-down');
+        }
+
+        // 监听折叠状态变化
+        advancedFilters.addEventListener('show.bs.collapse', function () {
+            toggleIcon.classList.remove('bi-chevron-right');
+            toggleIcon.classList.add('bi-chevron-down');
+        });
+
+        advancedFilters.addEventListener('hide.bs.collapse', function () {
+            toggleIcon.classList.remove('bi-chevron-down');
+            toggleIcon.classList.add('bi-chevron-right');
+        });
+    });
+
+    // 批量选择功能
+    function toggleSelectAll() {
+        const selectAllCheckbox = document.getElementById('selectAll');
+        const rowCheckboxes = document.querySelectorAll('.row-checkbox');
+
+        rowCheckboxes.forEach(checkbox => {
+            checkbox.checked = selectAllCheckbox.checked;
+        });
+
+        updateSelection();
+    }
+
+    function updateSelection() {
+        const rowCheckboxes = document.querySelectorAll('.row-checkbox');
+        const checkedBoxes = document.querySelectorAll('.row-checkbox:checked');
+        const selectAllCheckbox = document.getElementById('selectAll');
+        const selectionInfo = document.getElementById('selectionInfo');
+        const selectedCount = document.getElementById('selectedCount');
+        const batchToolbar = document.getElementById('batchToolbar');
+
+        // 更新选中数量显示
+        selectedCount.textContent = checkedBoxes.length;
+
+        // 显示/隐藏选择信息和批量操作工具栏
+        if (checkedBoxes.length > 0) {
+            selectionInfo.style.display = 'block';
+            batchToolbar.style.display = 'block';
+        } else {
+            selectionInfo.style.display = 'none';
+            batchToolbar.style.display = 'none';
+        }
+
+        // 更新全选复选框状态
+        if (checkedBoxes.length === 0) {
+            selectAllCheckbox.indeterminate = false;
+            selectAllCheckbox.checked = false;
+        } else if (checkedBoxes.length === rowCheckboxes.length) {
+            selectAllCheckbox.indeterminate = false;
+            selectAllCheckbox.checked = true;
+        } else {
+            selectAllCheckbox.indeterminate = true;
+            selectAllCheckbox.checked = false;
+        }
+    }
+
+    function clearSelection() {
+        const rowCheckboxes = document.querySelectorAll('.row-checkbox');
+        const selectAllCheckbox = document.getElementById('selectAll');
+
+        rowCheckboxes.forEach(checkbox => {
+            checkbox.checked = false;
+        });
+        selectAllCheckbox.checked = false;
+        selectAllCheckbox.indeterminate = false;
+
+        updateSelection();
+    }
+
+    function getSelectedApplications() {
+        const checkedBoxes = document.querySelectorAll('.row-checkbox:checked');
+        return Array.from(checkedBoxes).map(checkbox => checkbox.value);
+    }
+
+    // 批量审批功能
+    function batchApprove(status) {
+        const selectedApps = getSelectedApplications();
+        if (selectedApps.length === 0) {
+            alert('请先选择要操作的申请记录');
+            return;
+        }
+
+        // 设置确认对话框内容
+        const statusText = {
+            '待审批': '设置为待审批',
+            '报销中': '设置为报销中',
+            '已报销': '设置为已报销',
+            '驳回': '设置为驳回'
+        };
+
+        document.getElementById('batchStatusText').textContent = statusText[status];
+        document.getElementById('batchSelectedCount').textContent = selectedApps.length;
+        document.getElementById('batchStatus').value = status;
+        document.getElementById('batchAppNumbers').value = selectedApps.join(',');
+
+        // 显示确认对话框
+        const batchModal = new bootstrap.Modal(document.getElementById('batchApprovalModal'));
+        batchModal.show();
+    }
+
+    // 执行批量审批
+    function executeBatchApproval() {
+        const form = document.getElementById('batchApprovalForm');
+        const formData = new FormData(form);
+
+        // 添加备注到表单数据
+        const comment = document.getElementById('batchComment').value;
+        formData.append('comment', comment);
+
+        // 显示加载状态
+        const submitBtn = document.querySelector('#batchApprovalModal .btn-danger');
+        const cancelBtn = document.querySelector('#batchApprovalModal .btn-secondary');
+        const originalText = submitBtn.innerHTML;
+        submitBtn.innerHTML = '<i class="bi bi-hourglass-split"></i> 处理中...';
+        submitBtn.disabled = true;
+        cancelBtn.disabled = true;
+
+        fetch('/admin/batch_approve', {
+            method: 'POST',
+            body: formData
+        })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                return response.json();
+            })
+            .then(data => {
+                if (data.success) {
+                    // 显示成功消息
+                    showSuccessMessage(`批量操作成功！已更新 ${data.updated_count} 条记录`);
+
+                    // 关闭模态框
+                    const modal = bootstrap.Modal.getInstance(document.getElementById('batchApprovalModal'));
+                    modal.hide();
+
+                    // 清除选择状态
+                    clearSelection();
+
+                    // 延迟刷新页面以显示成功消息
+                    setTimeout(() => {
+                        window.location.reload();
+                    }, 1500);
+                } else {
+                    showErrorMessage('操作失败：' + data.message);
+                    resetBatchModal(submitBtn, cancelBtn, originalText);
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                showErrorMessage('网络错误或服务器异常，请重试');
+                resetBatchModal(submitBtn, cancelBtn, originalText);
+            });
+    }
+
+    // 重置批量操作模态框状态
+    function resetBatchModal(submitBtn, cancelBtn, originalText) {
+        submitBtn.innerHTML = originalText;
+        submitBtn.disabled = false;
+        cancelBtn.disabled = false;
+    }
+
+    // 显示成功消息
+    function showSuccessMessage(message) {
+        showToast(message, 'success');
+    }
+
+    // 显示错误消息
+    function showErrorMessage(message) {
+        showToast(message, 'error');
+    }
+
+    // 通用Toast消息显示函数
+    function showToast(message, type = 'info') {
+        // 创建toast容器（如果不存在）
+        let toastContainer = document.getElementById('toastContainer');
+        if (!toastContainer) {
+            toastContainer = document.createElement('div');
+            toastContainer.id = 'toastContainer';
+            toastContainer.className = 'toast-container position-fixed top-0 end-0 p-3';
+            toastContainer.style.zIndex = '9999';
+            document.body.appendChild(toastContainer);
+        }
+
+        // 创建toast元素
+        const toastId = 'toast_' + Date.now();
+        const bgClass = type === 'success' ? 'bg-success' : type === 'error' ? 'bg-danger' : 'bg-info';
+        const iconClass = type === 'success' ? 'bi-check-circle' : type === 'error' ? 'bi-exclamation-triangle' : 'bi-info-circle';
+
+        const toastHtml = `
+            <div id="${toastId}" class="toast ${bgClass} text-white" role="alert" aria-live="assertive" aria-atomic="true">
+                <div class="toast-header ${bgClass} text-white border-0">
+                    <i class="bi ${iconClass} me-2"></i>
+                    <strong class="me-auto">${type === 'success' ? '成功' : type === 'error' ? '错误' : '提示'}</strong>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="toast" aria-label="Close"></button>
+                </div>
+                <div class="toast-body">
+                    ${message}
+                </div>
+            </div>
+        `;
+
+        toastContainer.insertAdjacentHTML('beforeend', toastHtml);
+
+        // 显示toast
+        const toastElement = document.getElementById(toastId);
+        const toast = new bootstrap.Toast(toastElement, {
+            autohide: true,
+            delay: type === 'success' ? 3000 : 5000
+        });
+        toast.show();
+
+        // 自动清理
+        toastElement.addEventListener('hidden.bs.toast', function () {
+            toastElement.remove();
+        });
+    }
 </script>
 {% endblock %}
 
@@ -178,77 +543,110 @@
     </div>
 
     <!-- 搜索筛选表单 -->
-    <div class="card mb-4">
+    <div class="card mb-4 shadow-sm">
+        <div class="card-header bg-light">
+            <h6 class="mb-0 text-muted">
+                <i class="bi bi-funnel"></i> 筛选条件
+            </h6>
+        </div>
         <div class="card-body">
-            <form method="get">
-                <div class="row g-3 mb-3">
-                    <div class="col-md-3">
-                        <label for="purchaser" class="form-label">购买人</label>
+            <form method="get" id="filterForm">
+                <!-- 基础筛选条件 -->
+                <div class="row g-3 mb-4">
+                    <div class="col-lg-3 col-md-6">
+                        <label for="purchaser" class="form-label fw-semibold">
+                            <i class="bi bi-person text-primary"></i> 购买人
+                        </label>
                         <input type="text" class="form-control" id="purchaser" name="purchaser"
-                            value="{{ request.args.get('purchaser', '') }}">
+                            value="{{ request.args.get('purchaser', '') }}" placeholder="输入购买人姓名">
                     </div>
-                    <div class="col-md-3">
-                        <label for="status" class="form-label">状态</label>
+                    <div class="col-lg-3 col-md-6">
+                        <label for="status" class="form-label fw-semibold">
+                            <i class="bi bi-flag text-warning"></i> 状态
+                        </label>
                         <select class="form-select" id="status" name="status">
                             <option value="">全部状态</option>
-                            <option value="待审批" {% if request.args.get('status')=='待审批' %}selected{% endif %}>待审批
+                            <option value="待审批" {% if request.args.get('status')=='待审批' %}selected{% endif %}>
+                                <span class="badge bg-warning">待审批</span>
                             </option>
-                            <option value="报销中" {% if request.args.get('status')=='报销中' %}selected{% endif %}>报销中
+                            <option value="报销中" {% if request.args.get('status')=='报销中' %}selected{% endif %}>
+                                报销中
                             </option>
-                            <option value="已报销" {% if request.args.get('status')=='已报销' %}selected{% endif %}>已报销
+                            <option value="已报销" {% if request.args.get('status')=='已报销' %}selected{% endif %}>
+                                已报销
                             </option>
-                            <option value="驳回" {% if request.args.get('status')=='驳回' %}selected{% endif %}>驳回</option>
+                            <option value="驳回" {% if request.args.get('status')=='驳回' %}selected{% endif %}>
+                                驳回
+                            </option>
                         </select>
                     </div>
-                    <div class="col-md-3">
-                        <label for="usage" class="form-label">使用途径</label>
+                    <div class="col-lg-3 col-md-6">
+                        <label for="usage" class="form-label fw-semibold">
+                            <i class="bi bi-gear text-info"></i> 使用途径
+                        </label>
                         <select class="form-select" id="usage" name="usage">
-                            <option value="">全部</option>
-                            <option value="个人使用" {% if request.args.get('usage')=='个人使用' %}selected{% endif %}>个人使用
+                            <option value="">全部途径</option>
+                            <option value="个人使用" {% if request.args.get('usage')=='个人使用' %}selected{% endif %}>
+                                个人使用
                             </option>
-                            <option value="课题组公用" {% if request.args.get('usage')=='课题组公用' %}selected{% endif %}>课题组公用
+                            <option value="课题组公用" {% if request.args.get('usage')=='课题组公用' %}selected{% endif %}>
+                                课题组公用
                             </option>
                         </select>
                     </div>
-                </div>
-
-                <!-- 时间段筛选 -->
-                <div class="row g-3 mb-3">
-                    <div class="col-md-6">
-                        <label class="form-label"><i class="bi bi-calendar-event"></i> 购买日期</label>
-                        <div class="row g-2">
-                            <div class="col-6">
-                                <input type="date" class="form-control form-control-sm" name="purchase_date_start"
-                                    value="{{ request.args.get('purchase_date_start', '') }}" placeholder="开始日期">
-                            </div>
-                            <div class="col-6">
-                                <input type="date" class="form-control form-control-sm" name="purchase_date_end"
-                                    value="{{ request.args.get('purchase_date_end', '') }}" placeholder="结束日期">
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-md-6">
-                        <label class="form-label"><i class="bi bi-receipt"></i> 开票日期</label>
-                        <div class="row g-2">
-                            <div class="col-6">
-                                <input type="date" class="form-control form-control-sm" name="invoice_date_start"
-                                    value="{{ request.args.get('invoice_date_start', '') }}" placeholder="开始日期">
-                            </div>
-                            <div class="col-6">
-                                <input type="date" class="form-control form-control-sm" name="invoice_date_end"
-                                    value="{{ request.args.get('invoice_date_end', '') }}" placeholder="结束日期">
-                            </div>
+                    <div class="col-lg-3 col-md-6 d-flex align-items-end">
+                        <div class="btn-group w-100" role="group">
+                            <button type="submit" class="btn btn-primary">
+                                <i class="bi bi-search"></i> 筛选
+                            </button>
+                            <a href="{{ url_for('admin_dashboard') }}" class="btn btn-outline-secondary">
+                                <i class="bi bi-arrow-clockwise"></i> 重置
+                            </a>
                         </div>
                     </div>
                 </div>
 
-                <div class="d-flex gap-2">
-                    <button type="submit" class="btn btn-primary">
-                        <i class="bi bi-search"></i> 筛选
-                    </button>
-                    <a href="{{ url_for('admin_dashboard') }}" class="btn btn-secondary">
-                        <i class="bi bi-arrow-clockwise"></i> 重置
-                    </a>
+                <!-- 高级筛选条件 - 可折叠 -->
+                <div class="border-top pt-3">
+                    <div class="d-flex align-items-center mb-3">
+                        <button type="button" class="btn btn-link p-0 text-decoration-none" data-bs-toggle="collapse"
+                            data-bs-target="#advancedFilters" aria-expanded="false" aria-controls="advancedFilters">
+                            <i class="bi bi-chevron-right" id="advancedToggleIcon"></i>
+                            <span class="ms-1 fw-semibold text-muted">高级筛选</span>
+                        </button>
+                        <small class="text-muted ms-2">按日期范围筛选</small>
+                    </div>
+
+                    <div class="collapse" id="advancedFilters">
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                <label class="form-label fw-semibold">
+                                    <i class="bi bi-calendar-event text-success"></i> 购买日期范围
+                                </label>
+                                <div class="input-group">
+                                    <span class="input-group-text bg-light">从</span>
+                                    <input type="date" class="form-control" name="purchase_date_start"
+                                        value="{{ request.args.get('purchase_date_start', '') }}">
+                                    <span class="input-group-text bg-light">至</span>
+                                    <input type="date" class="form-control" name="purchase_date_end"
+                                        value="{{ request.args.get('purchase_date_end', '') }}">
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label fw-semibold">
+                                    <i class="bi bi-receipt text-danger"></i> 开票日期范围
+                                </label>
+                                <div class="input-group">
+                                    <span class="input-group-text bg-light">从</span>
+                                    <input type="date" class="form-control" name="invoice_date_start"
+                                        value="{{ request.args.get('invoice_date_start', '') }}">
+                                    <span class="input-group-text bg-light">至</span>
+                                    <input type="date" class="form-control" name="invoice_date_end"
+                                        value="{{ request.args.get('invoice_date_end', '') }}">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
 
                 <!-- 隐藏字段保持排序状态 -->
@@ -261,7 +659,12 @@
     <!-- 申请列表 -->
     <div class="card">
         <div class="card-header d-flex justify-content-between align-items-center">
-            <h5 class="mb-0">申请列表 (共 {{ total_count }} 条，第 {{ page }} / {{ total_pages }} 页)</h5>
+            <div class="d-flex align-items-center gap-3">
+                <h5 class="mb-0">申请列表 (共 {{ total_count }} 条，第 {{ page }} / {{ total_pages }} 页)</h5>
+                <div id="selectionInfo" class="text-muted small" style="display: none;">
+                    已选择 <span id="selectedCount">0</span> 项
+                </div>
+            </div>
             <div class="d-flex align-items-center gap-2">
                 <small class="text-muted">每页显示：</small>
                 <select class="form-select form-select-sm" style="width: auto;" onchange="changePerPage(this.value)">
@@ -271,10 +674,43 @@
                 </select>
             </div>
         </div>
+
+        <!-- 批量操作工具栏 -->
+        <div id="batchToolbar" class="card-body border-bottom bg-light" style="display: none;">
+            <div class="d-flex align-items-center justify-content-between">
+                <div class="d-flex align-items-center gap-2">
+                    <span class="text-muted">批量操作：</span>
+                    <div class="btn-group" role="group">
+                        <button type="button" class="btn btn-sm btn-warning text-dark" onclick="batchApprove('待审批')">
+                            <i class="bi bi-clock"></i> 待审批
+                        </button>
+                        <button type="button" class="btn btn-sm btn-primary" onclick="batchApprove('报销中')">
+                            <i class="bi bi-arrow-right-circle"></i> 报销中
+                        </button>
+                        <button type="button" class="btn btn-sm btn-success" onclick="batchApprove('已报销')">
+                            <i class="bi bi-check-circle"></i> 已报销
+                        </button>
+                        <button type="button" class="btn btn-sm btn-danger" onclick="batchApprove('驳回')">
+                            <i class="bi bi-x-circle"></i> 驳回
+                        </button>
+                    </div>
+                </div>
+                <button type="button" class="btn btn-sm btn-outline-secondary" onclick="clearSelection()">
+                    <i class="bi bi-x"></i> 取消选择
+                </button>
+            </div>
+        </div>
         <div class="table-responsive">
             <table class="table table-hover table-auto mb-0">
                 <thead class="table-light">
                     <tr>
+                        <th class="col-checkbox">
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" id="selectAll"
+                                    onchange="toggleSelectAll()">
+                                <label class="form-check-label" for="selectAll"></label>
+                            </div>
+                        </th>
                         <th class="col-app-number">申请编号</th>
                         <th class="sortable col-purchaser" data-sort="purchaser">
                             购买人
@@ -310,6 +746,12 @@
                 <tbody>
                     {% for app in applications %}
                     <tr>
+                        <td class="col-checkbox">
+                            <div class="form-check">
+                                <input class="form-check-input row-checkbox" type="checkbox" value="{{ app[1] }}"
+                                    onchange="updateSelection()">
+                            </div>
+                        </td>
                         <td class="col-app-number" title="{{ app[1] }}"><code>{{ app[1] }}</code></td>
                         <td class="col-purchaser" title="{{ app[2] }}">{{ app[2] }}</td>
                         <td class="col-item-name" title="{{ app[4] }}">{{ app[4] }}</td>
@@ -343,7 +785,7 @@
                     </tr>
                     {% else %}
                     <tr>
-                        <td colspan="9" class="text-center text-muted py-4">暂无申请记录</td>
+                        <td colspan="10" class="text-center text-muted py-4">暂无申请记录</td>
                     </tr>
                     {% endfor %}
                 </tbody>
@@ -411,6 +853,47 @@
                     <form id="deleteForm" method="post" class="d-inline">
                         <button type="submit" class="btn btn-danger">
                             <i class="bi bi-trash"></i> 确认删除
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 批量审批确认模态框 -->
+    <div class="modal fade" id="batchApprovalModal" tabindex="-1" aria-labelledby="batchApprovalModalLabel"
+        aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="batchApprovalModalLabel">
+                        <i class="bi bi-check-circle text-warning"></i> 批量审批确认
+                    </h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="alert alert-info">
+                        <i class="bi bi-info-circle"></i>
+                        <strong>提示：</strong>您即将对选中的申请记录执行批量操作。
+                    </div>
+                    <p><strong>操作类型：</strong><span id="batchStatusText"></span></p>
+                    <p><strong>选中数量：</strong><span id="batchSelectedCount"></span> 条记录</p>
+                    <div class="mb-3">
+                        <label for="batchComment" class="form-label">审批备注（可选）：</label>
+                        <textarea class="form-control" id="batchComment" name="comment" rows="3"
+                            placeholder="请输入审批备注..."></textarea>
+                    </div>
+                    <p class="text-muted">确定要执行此批量操作吗？</p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                        <i class="bi bi-x-circle"></i> 取消
+                    </button>
+                    <form id="batchApprovalForm" class="d-inline">
+                        <input type="hidden" id="batchStatus" name="status">
+                        <input type="hidden" id="batchAppNumbers" name="app_numbers">
+                        <button type="button" class="btn btn-danger" onclick="executeBatchApproval()">
+                            <i class="bi bi-check-circle"></i> 确认执行
                         </button>
                     </form>
                 </div>

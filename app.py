@@ -1,4 +1,5 @@
-from flask import Flask, render_template, request, redirect, url_for, flash, session, send_file
+from flask import (Flask, render_template, request, redirect, url_for,
+                   flash, session, send_file, jsonify)
 from werkzeug.utils import secure_filename
 from werkzeug.security import check_password_hash, generate_password_hash
 import sqlite3
@@ -533,18 +534,74 @@ def approve_application(app_number):
     if not session.get('admin_logged_in'):
         flash('请先登录')
         return redirect(url_for('admin_login'))
-    
+
     status = request.form['status']
     comment = request.form.get('comment', '')
-    
+
     with sqlite3.connect('reimbursement.db') as conn:
         c = conn.cursor()
         c.execute('UPDATE applications SET status = ?, approval_comment = ?, updated_at = ? WHERE app_number = ?',
                   (status, comment, get_beijing_time(), app_number))
         conn.commit()
-    
+
     flash('审批完成')
     return redirect(url_for('admin_application_detail', app_number=app_number))
+
+# 批量审批
+@app.route('/admin/batch_approve', methods=['POST'])
+@log_operation('批量审批申请')
+def batch_approve():
+    if not session.get('admin_logged_in'):
+        return jsonify({'success': False, 'message': '请先登录'})
+
+    try:
+        status = request.form.get('status')
+        comment = request.form.get('comment', '')
+        app_numbers_str = request.form.get('app_numbers', '')
+
+        if not status or not app_numbers_str:
+            return jsonify({'success': False, 'message': '参数不完整'})
+
+        app_numbers = [num.strip() for num in app_numbers_str.split(',') if num.strip()]
+
+        if not app_numbers:
+            return jsonify({'success': False, 'message': '未选择任何申请记录'})
+
+        # 验证状态值
+        valid_statuses = ['待审批', '报销中', '已报销', '驳回']
+        if status not in valid_statuses:
+            return jsonify({'success': False, 'message': '无效的状态值'})
+
+        updated_count = 0
+        with sqlite3.connect('reimbursement.db') as conn:
+            c = conn.cursor()
+
+            # 使用事务确保数据一致性
+            for app_number in app_numbers:
+                # 检查申请是否存在
+                c.execute('SELECT COUNT(*) FROM applications WHERE app_number = ?', (app_number,))
+                if c.fetchone()[0] == 0:
+                    continue
+
+                # 更新状态
+                c.execute('''UPDATE applications
+                           SET status = ?, approval_comment = ?, updated_at = ?
+                           WHERE app_number = ?''',
+                         (status, comment, get_beijing_time(), app_number))
+                updated_count += 1
+
+            conn.commit()
+
+        app.logger.info(f"批量审批完成: 更新了 {updated_count} 条记录，状态: {status}")
+        return jsonify({
+            'success': True,
+            'message': f'成功更新 {updated_count} 条记录',
+            'updated_count': updated_count
+        })
+
+    except Exception as e:
+        app.logger.error(f"批量审批失败: {str(e)}")
+        return jsonify({'success': False, 'message': f'操作失败: {str(e)}'})
 
 # 导出Excel
 @app.route('/admin/export')
