@@ -11,12 +11,14 @@
 <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
 <script src="https://cdn.jsdelivr.net/npm/flatpickr/dist/l10n/zh.js"></script>
 <style>
+    /* 表格和排序样式 */
     .sortable {
         cursor: pointer;
         user-select: none;
     }
 
-    .sortable:hover {
+    .sortable:hover,
+    .table-auto tbody tr:hover {
         background-color: #f8f9fa;
     }
 
@@ -29,7 +31,7 @@
         opacity: 1;
     }
 
-    /* 自适应表格样式 */
+    /* 表格基础样式 */
     .table-responsive {
         overflow-x: auto;
         border-radius: 0.375rem;
@@ -52,11 +54,7 @@
         vertical-align: middle;
     }
 
-    /* 为表格添加悬停效果 */
-    .table-auto tbody tr:hover {
-        background-color: #f8f9fa;
-    }
-
+    /* 表格列宽设置 */
     .table-auto .col-app-number {
         min-width: 80px;
         max-width: 100px;
@@ -98,7 +96,6 @@
         white-space: normal;
     }
 
-    /* 复选框列样式优化 */
     .table-auto .col-checkbox {
         width: 75px;
         min-width: 75px;
@@ -114,14 +111,24 @@
         align-items: center;
     }
 
-    /* 容器宽度调整 */
+    /* 容器和布局 */
     .container-fluid {
         max-width: 95%;
         padding-left: 1rem;
         padding-right: 1rem;
     }
 
-    /* 批量选择相关样式 */
+    .card.shadow-sm {
+        box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075) !important;
+        border: 1px solid rgba(0, 0, 0, 0.125);
+    }
+
+    .card-header.bg-light {
+        background-color: #f8f9fa !important;
+        border-bottom: 1px solid #dee2e6;
+    }
+
+    /* 批量选择样式 */
     .row-checkbox:checked+label,
     .row-checkbox:checked {
         background-color: #e3f2fd;
@@ -135,7 +142,20 @@
         background-color: #bbdefb !important;
     }
 
-    /* 复选框样式优化 */
+    #batchToolbar {
+        border-left: 4px solid #007bff;
+        background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+    }
+
+    #selectionInfo {
+        background-color: #d1ecf1;
+        color: #0c5460;
+        padding: 0.25rem 0.5rem;
+        border-radius: 0.25rem;
+        font-weight: 500;
+    }
+
+    /* 复选框样式 */
     .form-check-input:checked {
         background-color: #0d6efd;
         border-color: #0d6efd;
@@ -145,40 +165,13 @@
         background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20'%3e%3cpath fill='none' stroke='%23ffffff' stroke-linecap='round' stroke-linejoin='round' stroke-width='3' d='m6 10 3 3 6-6'/%3e%3c/svg%3e");
     }
 
-    .form-check-input:focus {
-        border-color: #dee2e6 !important;
-        outline: none !important;
-        box-shadow: none !important;
-    }
-
     .form-check-input:indeterminate {
         background-color: #0d6efd;
         border-color: #0d6efd;
         background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20'%3e%3cpath fill='none' stroke='%23ffffff' stroke-linecap='round' stroke-linejoin='round' stroke-width='3' d='M6 10h8'/%3e%3c/svg%3e");
     }
 
-    .form-check-input:indeterminate:focus {
-        border-color: #dee2e6 !important;
-        box-shadow: none !important;
-        outline: none !important;
-    }
-
-    /* 批量操作工具栏样式 */
-    #batchToolbar {
-        border-left: 4px solid #007bff;
-        background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
-    }
-
-    /* 选择信息样式 */
-    #selectionInfo {
-        background-color: #d1ecf1;
-        color: #0c5460;
-        padding: 0.25rem 0.5rem;
-        border-radius: 0.25rem;
-        font-weight: 500;
-    }
-
-    /* Toast容器样式优化 */
+    /* Toast样式 */
     .toast-container {
         z-index: 9999;
     }
@@ -187,51 +180,19 @@
         min-width: 300px;
     }
 
-    /* 高级筛选折叠按钮样式 */
-    .btn-link:hover {
-        text-decoration: none !important;
-    }
-
-    /* 筛选卡片样式优化 */
-    .card.shadow-sm {
-        box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075) !important;
-        border: 1px solid rgba(0, 0, 0, 0.125);
-    }
-
-    .card-header.bg-light {
-        background-color: #f8f9fa !important;
-        border-bottom: 1px solid #dee2e6;
-    }
-
-    /* 全局表单元素简化样式 */
+    /* 表单元素简化样式 */
     .form-control:focus,
     .form-select:focus,
     .btn:focus,
-    .form-check-input:focus {
+    .form-check-input:focus,
+    input:focus,
+    textarea:focus,
+    select:focus {
         border-color: #dee2e6 !important;
         box-shadow: none !important;
         outline: none !important;
     }
 
-    /* 移除输入框的复杂焦点效果 */
-    input[type="text"]:focus,
-    input[type="date"]:focus,
-    input[type="hidden"]:focus,
-    textarea:focus {
-        border-color: #dee2e6 !important;
-        box-shadow: none !important;
-        outline: none !important;
-    }
-
-    /* 移除下拉选择框的复杂焦点效果 */
-    select:focus,
-    .form-select:focus {
-        border-color: #dee2e6 !important;
-        box-shadow: none !important;
-        outline: none !important;
-    }
-
-    /* 简化悬停状态 */
     .form-control:hover,
     .form-select:hover {
         border-color: #ced4da;
@@ -243,7 +204,6 @@
         transition: none;
     }
 
-    /* 移除按钮的复杂悬停效果 */
     .btn-primary:hover {
         background-color: #0b5ed7;
         border-color: #0a58ca;
@@ -275,29 +235,25 @@
         box-shadow: none;
     }
 
-    /* 移除按钮的焦点效果 */
-    .btn:focus,
     .btn:active,
-    .btn.active {
-        box-shadow: none !important;
-        outline: none !important;
-    }
-
-    /* 简化批量操作按钮样式 */
-    .btn-group .btn:focus {
-        box-shadow: none !important;
-        outline: none !important;
-        z-index: auto;
-    }
-
-    /* 移除链接按钮的复杂效果 */
+    .btn.active,
+    .btn-group .btn:focus,
     .btn-link:focus {
         box-shadow: none !important;
         outline: none !important;
+    }
+
+    .btn-link:focus {
         text-decoration: none;
     }
 
-    /* 日期范围选择器样式优化 */
+    .form-check-input:indeterminate:focus {
+        border-color: #dee2e6 !important;
+        box-shadow: none !important;
+        outline: none !important;
+    }
+
+    /* 日期范围选择器样式 */
     .date-range-container {
         position: relative;
     }
@@ -306,12 +262,6 @@
         border-radius: 0.375rem 0.375rem 0 0;
         border-bottom: 1px solid #dee2e6;
         margin-bottom: 0;
-    }
-
-    .date-range-container .form-select:focus {
-        border-color: #dee2e6;
-        box-shadow: none;
-        outline: none;
     }
 
     .date-range-container .input-group {
@@ -328,9 +278,6 @@
 
     .date-range-container .input-group .form-control:focus {
         background-color: #fff;
-        border-color: #dee2e6 !important;
-        box-shadow: none !important;
-        outline: none !important;
     }
 
     .date-range-container .input-group-text {
@@ -340,20 +287,9 @@
         border-radius: 0;
     }
 
-    .date-range-container .input-group-text:focus {
-        box-shadow: none !important;
-        outline: none !important;
-    }
-
     .date-range-container .input-group .btn {
         border-top: 1px solid #dee2e6;
         border-radius: 0 0 0.375rem 0;
-    }
-
-    .date-range-container .input-group .btn:focus {
-        box-shadow: none !important;
-        outline: none !important;
-        border-color: #dee2e6 !important;
     }
 
     .date-range-container .input-group .btn:hover {
@@ -361,21 +297,7 @@
         transform: none;
     }
 
-    /* 确保第一个元素的上边框圆角 */
-    .date-range-container .form-select:first-child {
-        border-radius: 0.375rem 0.375rem 0 0;
-    }
-
-    /* 确保最后一个元素的下边框圆角 */
-    .date-range-container .input-group:last-child .form-control {
-        border-radius: 0 0 0 0.375rem;
-    }
-
-    .date-range-container .input-group:last-child .btn:last-child {
-        border-radius: 0 0 0.375rem 0;
-    }
-
-    /* Flatpickr主题定制 */
+    /* Flatpickr主题 */
     .flatpickr-calendar {
         box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
         border: 1px solid #dee2e6;
@@ -400,24 +322,14 @@
         border-color: rgba(13, 110, 253, 0.1);
     }
 
-    /* 预设选项样式 */
-    .date-range-container .form-select option {
-        padding: 0.5rem;
-    }
-
-    /* 响应式优化 */
+    /* 响应式设计 */
     @media (max-width: 768px) {
-        .date-range-container .form-select {
-            font-size: 0.875rem;
-        }
 
+        .date-range-container .form-select,
         .date-range-container .input-group .form-control {
             font-size: 0.875rem;
         }
-    }
 
-    /* 响应式表格优化 */
-    @media (max-width: 768px) {
         .table-auto .col-checkbox {
             width: 60px;
             min-width: 60px;
@@ -613,321 +525,163 @@
         }
     }
 
-    // 初始化Flatpickr日期范围选择器
+    // 初始化日期选择器
     document.addEventListener('DOMContentLoaded', function () {
-        // 购买日期范围选择器
-        window.purchaseDatePicker = flatpickr("#purchaseDateRange", {
-            mode: "range",
-            dateFormat: "Y-m-d",
-            locale: "zh",
-            allowInput: false,
-            clickOpens: false,
-            onChange: function (selectedDates, dateStr, instance) {
-                if (selectedDates.length === 2) {
-                    const startDate = selectedDates[0].toISOString().split('T')[0];
-                    const endDate = selectedDates[1].toISOString().split('T')[0];
-
-                    document.getElementById('purchaseDateStart').value = startDate;
-                    document.getElementById('purchaseDateEnd').value = endDate;
-                    document.getElementById('purchaseDateRange').value = formatDateRange(startDate, endDate);
-
-                    // 重置预设选择为自定义
-                    document.getElementById('purchaseDatePreset').value = 'custom';
-
-                    instance.close();
+        // 通用日期选择器配置函数
+        function createDatePicker(type) {
+            const config = {
+                mode: "range", dateFormat: "Y-m-d", locale: "zh", allowInput: false, clickOpens: false,
+                onChange: function (selectedDates, dateStr, instance) {
+                    if (selectedDates.length === 2) {
+                        const [start, end] = selectedDates.map(d => d.toISOString().split('T')[0]);
+                        document.getElementById(`${type}DateStart`).value = start;
+                        document.getElementById(`${type}DateEnd`).value = end;
+                        document.getElementById(`${type}DateRange`).value = formatDateRange(start, end);
+                        document.getElementById(`${type}DatePreset`).value = 'custom';
+                        instance.close();
+                    }
+                },
+                onClose: function (selectedDates) {
+                    if (selectedDates.length === 0) {
+                        ['Start', 'End', 'Range', 'Preset'].forEach(suffix =>
+                            document.getElementById(`${type}Date${suffix}`).value = '');
+                    }
                 }
-            },
-            onClose: function (selectedDates, dateStr, instance) {
-                if (selectedDates.length === 0) {
-                    // 如果没有选择日期，清空相关字段
-                    document.getElementById('purchaseDateStart').value = '';
-                    document.getElementById('purchaseDateEnd').value = '';
-                    document.getElementById('purchaseDateRange').value = '';
-                    document.getElementById('purchaseDatePreset').value = '';
-                }
-            }
-        });
+            };
+            return flatpickr(`#${type}DateRange`, config);
+        }
 
-        // 开票日期范围选择器
-        window.invoiceDatePicker = flatpickr("#invoiceDateRange", {
-            mode: "range",
-            dateFormat: "Y-m-d",
-            locale: "zh",
-            allowInput: false,
-            clickOpens: false,
-            onChange: function (selectedDates, dateStr, instance) {
-                if (selectedDates.length === 2) {
-                    const startDate = selectedDates[0].toISOString().split('T')[0];
-                    const endDate = selectedDates[1].toISOString().split('T')[0];
-
-                    document.getElementById('invoiceDateStart').value = startDate;
-                    document.getElementById('invoiceDateEnd').value = endDate;
-                    document.getElementById('invoiceDateRange').value = formatDateRange(startDate, endDate);
-
-                    // 重置预设选择为自定义
-                    document.getElementById('invoiceDatePreset').value = 'custom';
-
-                    instance.close();
-                }
-            },
-            onClose: function (selectedDates, dateStr, instance) {
-                if (selectedDates.length === 0) {
-                    // 如果没有选择日期，清空相关字段
-                    document.getElementById('invoiceDateStart').value = '';
-                    document.getElementById('invoiceDateEnd').value = '';
-                    document.getElementById('invoiceDateRange').value = '';
-                    document.getElementById('invoiceDatePreset').value = '';
-                }
-            }
-        });
-
-        // 初始化现有的日期值
+        window.purchaseDatePicker = createDatePicker('purchase');
+        window.invoiceDatePicker = createDatePicker('invoice');
         initializeDateRanges();
     });
 
     function initializeDateRanges() {
-        // 初始化购买日期范围
-        const purchaseStart = document.getElementById('purchaseDateStart').value;
-        const purchaseEnd = document.getElementById('purchaseDateEnd').value;
-        if (purchaseStart && purchaseEnd) {
-            document.getElementById('purchaseDateRange').value = formatDateRange(purchaseStart, purchaseEnd);
-            window.purchaseDatePicker.setDate([purchaseStart, purchaseEnd]);
-        }
-
-        // 初始化开票日期范围
-        const invoiceStart = document.getElementById('invoiceDateStart').value;
-        const invoiceEnd = document.getElementById('invoiceDateEnd').value;
-        if (invoiceStart && invoiceEnd) {
-            document.getElementById('invoiceDateRange').value = formatDateRange(invoiceStart, invoiceEnd);
-            window.invoiceDatePicker.setDate([invoiceStart, invoiceEnd]);
-        }
+        ['purchase', 'invoice'].forEach(type => {
+            const start = document.getElementById(`${type}DateStart`).value;
+            const end = document.getElementById(`${type}DateEnd`).value;
+            if (start && end) {
+                document.getElementById(`${type}DateRange`).value = formatDateRange(start, end);
+                window[`${type}DatePicker`].setDate([start, end]);
+            }
+        });
     }
 
     // 清空日期范围
     function clearDateRange(type) {
-        const presetSelect = document.getElementById(`${type}DatePreset`);
-        const rangeInput = document.getElementById(`${type}DateRange`);
-        const startInput = document.getElementById(`${type}DateStart`);
-        const endInput = document.getElementById(`${type}DateEnd`);
-        const datePicker = window[`${type}DatePicker`];
-
-        // 清空所有相关字段
-        presetSelect.value = '';
-        rangeInput.value = '';
-        startInput.value = '';
-        endInput.value = '';
-
-        // 清空日期选择器
-        if (datePicker) {
-            datePicker.clear();
-        }
+        ['Preset', 'Range', 'Start', 'End'].forEach(suffix =>
+            document.getElementById(`${type}Date${suffix}`).value = '');
+        window[`${type}DatePicker`]?.clear();
     }
 
     // 批量选择功能
     function toggleSelectAll() {
-        const selectAllCheckbox = document.getElementById('selectAll');
-        const rowCheckboxes = document.querySelectorAll('.row-checkbox');
-
-        rowCheckboxes.forEach(checkbox => {
-            checkbox.checked = selectAllCheckbox.checked;
-        });
-
+        const selectAll = document.getElementById('selectAll');
+        document.querySelectorAll('.row-checkbox').forEach(cb => cb.checked = selectAll.checked);
         updateSelection();
     }
 
     function updateSelection() {
-        const rowCheckboxes = document.querySelectorAll('.row-checkbox');
-        const checkedBoxes = document.querySelectorAll('.row-checkbox:checked');
-        const selectAllCheckbox = document.getElementById('selectAll');
-        const selectionInfo = document.getElementById('selectionInfo');
-        const selectedCount = document.getElementById('selectedCount');
-        const batchToolbar = document.getElementById('batchToolbar');
+        const [all, checked] = [document.querySelectorAll('.row-checkbox'), document.querySelectorAll('.row-checkbox:checked')];
+        const selectAll = document.getElementById('selectAll');
+        const count = checked.length;
 
-        // 更新选中数量显示
-        selectedCount.textContent = checkedBoxes.length;
+        document.getElementById('selectedCount').textContent = count;
+        ['selectionInfo', 'batchToolbar'].forEach(id =>
+            document.getElementById(id).style.display = count > 0 ? 'block' : 'none');
 
-        // 显示/隐藏选择信息和批量操作工具栏
-        if (checkedBoxes.length > 0) {
-            selectionInfo.style.display = 'block';
-            batchToolbar.style.display = 'block';
-        } else {
-            selectionInfo.style.display = 'none';
-            batchToolbar.style.display = 'none';
-        }
-
-        // 更新全选复选框状态
-        if (checkedBoxes.length === 0) {
-            selectAllCheckbox.indeterminate = false;
-            selectAllCheckbox.checked = false;
-        } else if (checkedBoxes.length === rowCheckboxes.length) {
-            selectAllCheckbox.indeterminate = false;
-            selectAllCheckbox.checked = true;
-        } else {
-            selectAllCheckbox.indeterminate = true;
-            selectAllCheckbox.checked = false;
-        }
+        selectAll.indeterminate = count > 0 && count < all.length;
+        selectAll.checked = count === all.length;
     }
 
     function clearSelection() {
-        const rowCheckboxes = document.querySelectorAll('.row-checkbox');
-        const selectAllCheckbox = document.getElementById('selectAll');
-
-        rowCheckboxes.forEach(checkbox => {
-            checkbox.checked = false;
-        });
-        selectAllCheckbox.checked = false;
-        selectAllCheckbox.indeterminate = false;
-
+        document.querySelectorAll('.row-checkbox').forEach(cb => cb.checked = false);
+        const selectAll = document.getElementById('selectAll');
+        selectAll.checked = selectAll.indeterminate = false;
         updateSelection();
     }
 
-    function getSelectedApplications() {
-        const checkedBoxes = document.querySelectorAll('.row-checkbox:checked');
-        return Array.from(checkedBoxes).map(checkbox => checkbox.value);
-    }
+    const getSelectedApplications = () => Array.from(document.querySelectorAll('.row-checkbox:checked')).map(cb => cb.value);
 
     // 批量审批功能
     function batchApprove(status) {
         const selectedApps = getSelectedApplications();
-        if (selectedApps.length === 0) {
-            alert('请先选择要操作的申请记录');
-            return;
-        }
+        if (!selectedApps.length) return alert('请先选择要操作的申请记录');
 
-        // 设置确认对话框内容
-        const statusText = {
-            '待审批': '设置为待审批',
-            '报销中': '设置为报销中',
-            '已报销': '设置为已报销',
-            '驳回': '设置为驳回'
-        };
+        const statusText = { '待审批': '设置为待审批', '报销中': '设置为报销中', '已报销': '设置为已报销', '驳回': '设置为驳回' };
+        Object.assign(document.getElementById('batchStatusText'), { textContent: statusText[status] });
+        Object.assign(document.getElementById('batchSelectedCount'), { textContent: selectedApps.length });
+        Object.assign(document.getElementById('batchStatus'), { value: status });
+        Object.assign(document.getElementById('batchAppNumbers'), { value: selectedApps.join(',') });
 
-        document.getElementById('batchStatusText').textContent = statusText[status];
-        document.getElementById('batchSelectedCount').textContent = selectedApps.length;
-        document.getElementById('batchStatus').value = status;
-        document.getElementById('batchAppNumbers').value = selectedApps.join(',');
-
-        // 显示确认对话框
-        const batchModal = new bootstrap.Modal(document.getElementById('batchApprovalModal'));
-        batchModal.show();
+        new bootstrap.Modal(document.getElementById('batchApprovalModal')).show();
     }
 
     // 执行批量审批
     function executeBatchApproval() {
-        const form = document.getElementById('batchApprovalForm');
-        const formData = new FormData(form);
+        const formData = new FormData(document.getElementById('batchApprovalForm'));
+        formData.append('comment', document.getElementById('batchComment').value);
 
-        // 添加备注到表单数据
-        const comment = document.getElementById('batchComment').value;
-        formData.append('comment', comment);
-
-        // 显示加载状态
-        const submitBtn = document.querySelector('#batchApprovalModal .btn-danger');
-        const cancelBtn = document.querySelector('#batchApprovalModal .btn-secondary');
+        const [submitBtn, cancelBtn] = document.querySelectorAll('#batchApprovalModal .btn-danger, #batchApprovalModal .btn-secondary');
         const originalText = submitBtn.innerHTML;
+        [submitBtn, cancelBtn].forEach(btn => btn.disabled = true);
         submitBtn.innerHTML = '<i class="bi bi-hourglass-split"></i> 处理中...';
-        submitBtn.disabled = true;
-        cancelBtn.disabled = true;
 
-        fetch('/admin/batch_approve', {
-            method: 'POST',
-            body: formData
-        })
-            .then(response => {
-                if (!response.ok) {
-                    throw new Error(`HTTP error! status: ${response.status}`);
-                }
-                return response.json();
-            })
+        fetch('/admin/batch_approve', { method: 'POST', body: formData })
+            .then(res => res.ok ? res.json() : Promise.reject(`HTTP error! status: ${res.status}`))
             .then(data => {
                 if (data.success) {
-                    // 显示成功消息
-                    showSuccessMessage(`批量操作成功！已更新 ${data.updated_count} 条记录`);
-
-                    // 关闭模态框
-                    const modal = bootstrap.Modal.getInstance(document.getElementById('batchApprovalModal'));
-                    modal.hide();
-
-                    // 清除选择状态
+                    showToast(`批量操作成功！已更新 ${data.updated_count} 条记录`, 'success');
+                    bootstrap.Modal.getInstance(document.getElementById('batchApprovalModal')).hide();
                     clearSelection();
-
-                    // 延迟刷新页面以显示成功消息
-                    setTimeout(() => {
-                        window.location.reload();
-                    }, 1500);
+                    setTimeout(() => window.location.reload(), 1500);
                 } else {
-                    showErrorMessage('操作失败：' + data.message);
+                    showToast('操作失败：' + data.message, 'error');
                     resetBatchModal(submitBtn, cancelBtn, originalText);
                 }
             })
             .catch(error => {
                 console.error('Error:', error);
-                showErrorMessage('网络错误或服务器异常，请重试');
+                showToast('网络错误或服务器异常，请重试', 'error');
                 resetBatchModal(submitBtn, cancelBtn, originalText);
             });
     }
 
-    // 重置批量操作模态框状态
-    function resetBatchModal(submitBtn, cancelBtn, originalText) {
+    const resetBatchModal = (submitBtn, cancelBtn, originalText) => {
         submitBtn.innerHTML = originalText;
-        submitBtn.disabled = false;
-        cancelBtn.disabled = false;
-    }
+        [submitBtn, cancelBtn].forEach(btn => btn.disabled = false);
+    };
 
-    // 显示成功消息
-    function showSuccessMessage(message) {
-        showToast(message, 'success');
-    }
-
-    // 显示错误消息
-    function showErrorMessage(message) {
-        showToast(message, 'error');
-    }
-
-    // 通用Toast消息显示函数
+    // Toast消息显示
     function showToast(message, type = 'info') {
-        // 创建toast容器（如果不存在）
-        let toastContainer = document.getElementById('toastContainer');
-        if (!toastContainer) {
-            toastContainer = document.createElement('div');
-            toastContainer.id = 'toastContainer';
-            toastContainer.className = 'toast-container position-fixed top-0 end-0 p-3';
-            toastContainer.style.zIndex = '9999';
-            document.body.appendChild(toastContainer);
-        }
+        let container = document.getElementById('toastContainer') ||
+            Object.assign(document.createElement('div'), {
+                id: 'toastContainer',
+                className: 'toast-container position-fixed top-0 end-0 p-3',
+                style: 'z-index: 9999'
+            });
+        if (!container.parentNode) document.body.appendChild(container);
 
-        // 创建toast元素
+        const config = {
+            success: { bg: 'bg-success', icon: 'bi-check-circle', title: '成功', delay: 3000 },
+            error: { bg: 'bg-danger', icon: 'bi-exclamation-triangle', title: '错误', delay: 5000 },
+            info: { bg: 'bg-info', icon: 'bi-info-circle', title: '提示', delay: 5000 }
+        }[type];
+
         const toastId = 'toast_' + Date.now();
-        const bgClass = type === 'success' ? 'bg-success' : type === 'error' ? 'bg-danger' : 'bg-info';
-        const iconClass = type === 'success' ? 'bi-check-circle' : type === 'error' ? 'bi-exclamation-triangle' : 'bi-info-circle';
-
-        const toastHtml = `
-            <div id="${toastId}" class="toast ${bgClass} text-white" role="alert" aria-live="assertive" aria-atomic="true">
-                <div class="toast-header ${bgClass} text-white border-0">
-                    <i class="bi ${iconClass} me-2"></i>
-                    <strong class="me-auto">${type === 'success' ? '成功' : type === 'error' ? '错误' : '提示'}</strong>
-                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="toast" aria-label="Close"></button>
+        container.insertAdjacentHTML('beforeend', `
+            <div id="${toastId}" class="toast ${config.bg} text-white" role="alert">
+                <div class="toast-header ${config.bg} text-white border-0">
+                    <i class="bi ${config.icon} me-2"></i>
+                    <strong class="me-auto">${config.title}</strong>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="toast"></button>
                 </div>
-                <div class="toast-body">
-                    ${message}
-                </div>
-            </div>
-        `;
+                <div class="toast-body">${message}</div>
+            </div>`);
 
-        toastContainer.insertAdjacentHTML('beforeend', toastHtml);
-
-        // 显示toast
-        const toastElement = document.getElementById(toastId);
-        const toast = new bootstrap.Toast(toastElement, {
-            autohide: true,
-            delay: type === 'success' ? 3000 : 5000
-        });
+        const toast = new bootstrap.Toast(document.getElementById(toastId), { autohide: true, delay: config.delay });
         toast.show();
-
-        // 自动清理
-        toastElement.addEventListener('hidden.bs.toast', function () {
-            toastElement.remove();
-        });
+        document.getElementById(toastId).addEventListener('hidden.bs.toast', e => e.target.remove());
     }
 </script>
 {% endblock %}
@@ -970,18 +724,10 @@
                         </label>
                         <select class="form-select" id="status" name="status">
                             <option value="">全部状态</option>
-                            <option value="待审批" {% if request.args.get('status')=='待审批' %}selected{% endif %}>
-                                <span class="badge bg-warning">待审批</span>
-                            </option>
-                            <option value="报销中" {% if request.args.get('status')=='报销中' %}selected{% endif %}>
-                                报销中
-                            </option>
-                            <option value="已报销" {% if request.args.get('status')=='已报销' %}selected{% endif %}>
-                                已报销
-                            </option>
-                            <option value="驳回" {% if request.args.get('status')=='驳回' %}selected{% endif %}>
-                                驳回
-                            </option>
+                            {% for status in ['待审批', '报销中', '已报销', '驳回'] %}
+                            <option value="{{ status }}" {% if request.args.get('status')==status %}selected{% endif %}>
+                                {{ status }}</option>
+                            {% endfor %}
                         </select>
                     </div>
                     <div class="col-lg-3 col-md-6">
@@ -1011,77 +757,41 @@
                 </div>
 
                 <!-- 日期范围筛选 -->
+                {% macro date_range_picker(type, label, icon, color) %}
+                <div class="col-md-6">
+                    <label class="form-label fw-semibold">
+                        <i class="bi bi-{{ icon }} text-{{ color }}"></i> {{ label }}
+                    </label>
+                    <div class="date-range-container">
+                        <select class="form-select mb-2" id="{{ type }}DatePreset"
+                            onchange="handleDatePresetChange('{{ type }}')">
+                            <option value="">选择时间范围</option>
+                            {% for value, text in [('today', '今天'), ('yesterday', '昨天'), ('last7days', '最近7天'),
+                            ('last30days', '最近30天'), ('thisMonth', '本月'), ('lastMonth', '上月'), ('last3months', '最近3个月'),
+                            ('custom', '自定义范围')] %}
+                            <option value="{{ value }}">{{ text }}</option>
+                            {% endfor %}
+                        </select>
+                        <div class="input-group">
+                            <span class="input-group-text bg-light"><i class="bi bi-calendar-range"></i></span>
+                            <input type="text" class="form-control" id="{{ type }}DateRange" placeholder="选择日期范围"
+                                readonly>
+                            <button class="btn btn-outline-secondary" type="button"
+                                onclick="clearDateRange('{{ type }}')" title="清空日期">
+                                <i class="bi bi-x"></i>
+                            </button>
+                        </div>
+                        <input type="hidden" name="{{ type }}_date_start" id="{{ type }}DateStart"
+                            value="{{ request.args.get(type + '_date_start', '') }}">
+                        <input type="hidden" name="{{ type }}_date_end" id="{{ type }}DateEnd"
+                            value="{{ request.args.get(type + '_date_end', '') }}">
+                    </div>
+                </div>
+                {% endmacro %}
+
                 <div class="row g-3 mb-3">
-                    <div class="col-md-6">
-                        <label class="form-label fw-semibold">
-                            <i class="bi bi-calendar-event text-success"></i> 购买日期范围
-                        </label>
-                        <div class="date-range-container">
-                            <select class="form-select mb-2" id="purchaseDatePreset"
-                                onchange="handleDatePresetChange('purchase')">
-                                <option value="">选择时间范围</option>
-                                <option value="today">今天</option>
-                                <option value="yesterday">昨天</option>
-                                <option value="last7days">最近7天</option>
-                                <option value="last30days">最近30天</option>
-                                <option value="thisMonth">本月</option>
-                                <option value="lastMonth">上月</option>
-                                <option value="last3months">最近3个月</option>
-                                <option value="custom">自定义范围</option>
-                            </select>
-                            <div class="input-group">
-                                <span class="input-group-text bg-light">
-                                    <i class="bi bi-calendar-range"></i>
-                                </span>
-                                <input type="text" class="form-control" id="purchaseDateRange" placeholder="选择日期范围"
-                                    readonly>
-                                <button class="btn btn-outline-secondary" type="button"
-                                    onclick="clearDateRange('purchase')" title="清空日期">
-                                    <i class="bi bi-x"></i>
-                                </button>
-                            </div>
-                            <!-- 隐藏字段用于表单提交 -->
-                            <input type="hidden" name="purchase_date_start" id="purchaseDateStart"
-                                value="{{ request.args.get('purchase_date_start', '') }}">
-                            <input type="hidden" name="purchase_date_end" id="purchaseDateEnd"
-                                value="{{ request.args.get('purchase_date_end', '') }}">
-                        </div>
-                    </div>
-                    <div class="col-md-6">
-                        <label class="form-label fw-semibold">
-                            <i class="bi bi-receipt text-danger"></i> 开票日期范围
-                        </label>
-                        <div class="date-range-container">
-                            <select class="form-select mb-2" id="invoiceDatePreset"
-                                onchange="handleDatePresetChange('invoice')">
-                                <option value="">选择时间范围</option>
-                                <option value="today">今天</option>
-                                <option value="yesterday">昨天</option>
-                                <option value="last7days">最近7天</option>
-                                <option value="last30days">最近30天</option>
-                                <option value="thisMonth">本月</option>
-                                <option value="lastMonth">上月</option>
-                                <option value="last3months">最近3个月</option>
-                                <option value="custom">自定义范围</option>
-                            </select>
-                            <div class="input-group">
-                                <span class="input-group-text bg-light">
-                                    <i class="bi bi-calendar-range"></i>
-                                </span>
-                                <input type="text" class="form-control" id="invoiceDateRange" placeholder="选择日期范围"
-                                    readonly>
-                                <button class="btn btn-outline-secondary" type="button"
-                                    onclick="clearDateRange('invoice')" title="清空日期">
-                                    <i class="bi bi-x"></i>
-                                </button>
-                            </div>
-                            <!-- 隐藏字段用于表单提交 -->
-                            <input type="hidden" name="invoice_date_start" id="invoiceDateStart"
-                                value="{{ request.args.get('invoice_date_start', '') }}">
-                            <input type="hidden" name="invoice_date_end" id="invoiceDateEnd"
-                                value="{{ request.args.get('invoice_date_end', '') }}">
-                        </div>
-                    </div>
+                    {{ date_range_picker('purchase', '购买日期范围', 'calendar-event', 'success') }}
+                    {{ date_range_picker('invoice', '开票日期范围', 'receipt', 'danger') }}
                 </div>
 
 
@@ -1197,15 +907,9 @@
                         <td class="col-date">{{ app[9] }}</td>
                         <td class="col-date">{{ app[12] }}</td>
                         <td class="col-status">
-                            {% if app[13] == '待审批' %}
-                            <span class="badge bg-warning">{{ app[13] }}</span>
-                            {% elif app[13] == '报销中' %}
-                            <span class="badge bg-primary">{{ app[13] }}</span>
-                            {% elif app[13] == '已报销' %}
-                            <span class="badge bg-success">{{ app[13] }}</span>
-                            {% elif app[13] == '驳回' %}
-                            <span class="badge bg-danger">{{ app[13] }}</span>
-                            {% endif %}
+                            {% set status_colors = {'待审批': 'warning', '报销中': 'primary', '已报销': 'success', '驳回':
+                            'danger'} %}
+                            <span class="badge bg-{{ status_colors.get(app[13], 'secondary') }}">{{ app[13] }}</span>
                         </td>
                         <td class="col-actions">
                             <div class="d-flex gap-1">
