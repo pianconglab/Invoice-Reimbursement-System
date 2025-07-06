@@ -11,6 +11,24 @@ from io import BytesIO
 import logging
 from logging.handlers import RotatingFileHandler
 
+# --- 为 SQLite 启用 WAL 模式 ---
+# 使用 SQLAlchemy 的事件监听器，在第一次建立连接时，自动开启 WAL 模式
+# 这可以显著提高并发读取性能
+from sqlalchemy import event, create_engine
+from sqlalchemy.engine import Engine
+
+# 创建一个临时的 engine 来检查是否是 SQLite
+# 这里假设您本地调试时也可能使用 SQLite
+temp_engine = create_engine(f"sqlite:///{'reimbursement.db'}")
+
+@event.listens_for(Engine, "connect")
+def set_sqlite_pragma(dbapi_connection, connection_record):
+    # 仅当数据库驱动是 sqlite3 时执行
+    if type(dbapi_connection).__module__ == "sqlite3":
+        cursor = dbapi_connection.cursor()
+        cursor.execute("PRAGMA journal_mode=WAL;")
+        cursor.close()
+
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'your-secret-key-change-this'
 app.config['UPLOAD_FOLDER'] = 'uploads'
@@ -67,6 +85,8 @@ def log_operation(operation_type):
 def init_db():
     with sqlite3.connect('reimbursement.db') as conn:
         c = conn.cursor()
+        # 启用 WAL 模式以提高并发性能
+        c.execute("PRAGMA journal_mode=WAL;")
         c.execute('''CREATE TABLE IF NOT EXISTS applications (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             app_number TEXT UNIQUE NOT NULL,

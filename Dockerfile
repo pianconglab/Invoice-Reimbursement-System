@@ -1,4 +1,4 @@
-FROM python:3.13.5-bookworm
+FROM python:3.10.13-bookworm
 
 # 设置工作目录
 WORKDIR /app
