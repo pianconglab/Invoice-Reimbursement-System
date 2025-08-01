@@ -1,0 +1,84 @@
+services:
+  # Web应用服务
+  web:
+    build: .
+    container_name: invoice-web
+    restart: unless-stopped
+    ports:
+      - "5000:5000"
+    volumes:
+      # 数据持久化
+      - ./uploads:/app/uploads
+      - ./logs:/app/logs
+      - ./reimbursement.db:/app/reimbursement.db
+      # 配置文件挂载（如果需要）
+      - ./app.py:/app/app.py:ro
+    environment:
+      - FLASK_ENV=production
+      - GUNICORN_WORKERS=2
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:5000"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+    depends_on:
+      - db
+    networks:
+      - invoice-network
+
+  # PostgreSQL数据库服务（可选，用于替代SQLite）
+  db:
+    image: postgres:15-alpine
+    container_name: invoice-db
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: invoice_db
+      POSTGRES_USER: invoice_user
+      POSTGRES_PASSWORD: invoice_password
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./init-db:/docker-entrypoint-initdb.d
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U invoice_user -d invoice_db"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - invoice-network
+    # 仅在内部网络中暴露，不对外开放端口
+    expose:
+      - "5432"
+
+  # Redis缓存服务（可选，用于会话存储或缓存）
+  redis:
+    image: redis:7-alpine
+    container_name: invoice-redis
+    restart: unless-stopped
+    command: redis-server --appendonly yes
+    volumes:
+      - redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+    networks:
+      - invoice-network
+    expose:
+      - "6379"
+
+# 网络配置
+networks:
+  invoice-network:
+    driver: bridge
+    name: invoice-network
+
+# 数据卷配置
+volumes:
+  postgres_data:
+    driver: local
+    name: invoice_postgres_data
+  redis_data:
+    driver: local
+    name: invoice_redis_data

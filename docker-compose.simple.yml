@@ -1,0 +1,30 @@
+services:
+  # Web应用服务
+  web:
+    build: .
+    container_name: ${WEB_CONTAINER_NAME:-invoice-web}
+    restart: unless-stopped
+    ports:
+      - "${WEB_PORT:-5000}:5000"
+    volumes:
+      # 数据持久化 - 使用绑定挂载保持与现有数据兼容
+      - ./uploads:/app/uploads
+      - ./logs:/app/logs
+      - ./reimbursement.db:/app/reimbursement.db
+    environment:
+      - FLASK_ENV=${FLASK_ENV:-production}
+      - GUNICORN_WORKERS=${GUNICORN_WORKERS:-2}
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:5000"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+    networks:
+      - invoice-network
+
+# 网络配置
+networks:
+  invoice-network:
+    driver: bridge
+    name: ${NETWORK_NAME:-invoice-network}

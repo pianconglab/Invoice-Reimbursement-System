@@ -3,7 +3,13 @@ set -e
 
 # 确保目录存在并有正确权限
 mkdir -p /app/uploads /app/logs
-chmod 755 /app/uploads /app/logs
+# 只有在目录权限可以修改时才尝试修改
+if [ -w /app/uploads ]; then
+    chmod 755 /app/uploads
+fi
+if [ -w /app/logs ]; then
+    chmod 755 /app/logs
+fi
 
 # 初始化数据库
 python -c "from app import init_db; init_db()"
